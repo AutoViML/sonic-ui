@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# Local env/config
+.env
+.env.*
+
+# Local runtime state
+*.db
+*.db-shm
+*.db-wal
+sonic_state.db
+sonic_state.db-shm
+sonic_state.db-wal
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Local planning docs (do not commit)
+PRD.md
+PRD2.md

@@ -1,0 +1,16 @@
+[Unit]
+Description=Codex Sonic WebSocket Gateway
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sonic
+EnvironmentFile=/etc/codex-ws-gateway.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 9000
+Restart=on-failure
+RestartSec=2
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
