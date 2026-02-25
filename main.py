@@ -121,14 +121,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         cfg: Settings = app.state.settings
         return JSONResponse({
             "default_model": cfg.model_name,
-            "allowed_models": sorted(list(cfg.allowed_models))
+            "allowed_models": sorted(list(cfg.allowed_models)),
+            "filesystem_root": cfg.filesystem_root,
         })
 
     @app.get("/v1/files")
     async def list_files(path: str = "."):
         """Simple file explorer endpoint."""
         try:
-            root = Path(path).resolve()
+            cfg: Settings = app.state.settings
+            # If the caller sends "." (the UI default), resolve to FILESYSTEM_ROOT
+            if path in (".", ""):
+                root = Path(cfg.filesystem_root).resolve()
+            else:
+                root = Path(path).resolve()
             
             items = []
             for item in sorted(os.listdir(root)):

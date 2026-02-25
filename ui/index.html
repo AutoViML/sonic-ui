@@ -1577,17 +1577,20 @@
 
     // ── Auto-connect & Config ──
     async function init() {
-      // Try to get model name from server config
+      // Try to get model name and filesystem root from server config
       try {
         const resp = await fetch('/v1/config');
         const data = await resp.json();
         if (data.default_model) {
           modelInput.value = data.default_model;
         }
+        if (data.filesystem_root) {
+          currentPath = data.filesystem_root;
+        }
       } catch (e) {
         console.error('Could not fetch config', e);
       }
-      loadFiles();
+      loadFiles(currentPath);
       connect();
     }
 
