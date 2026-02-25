@@ -2,7 +2,7 @@
 
 # ⚡ Sonic UI: Superfast Local Model Chat UI
 
-**A new, superfast chat interface for local models that brings the bare necessities of VS Code to your AI workflow.** Built on the high-performance [Sonic](https://github.com/mitkox/sonic) gateway, Sonic UI makes local LLMs feel instant.
+**A new, superfast chat interface for local models that brings the bare necessities of VS Code to your AI workflow.** Built on the high-performance [Sonic](https://github.com/mitkox/sonic) gateway (created by Mitko Vasilev), Sonic UI makes local LLMs feel instant.
 
 Sonic UI delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
 
