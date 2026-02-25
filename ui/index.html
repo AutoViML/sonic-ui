@@ -795,6 +795,87 @@
       font-size: 10px;
     }
 
+    /* ── Thinking block ── */
+    .thinking-block {
+      max-width: 780px;
+      margin: 0 auto 8px;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: var(--radius-md);
+      background: rgba(168, 85, 247, 0.04);
+      overflow: hidden;
+      animation: msgIn 0.3s ease;
+    }
+
+    .thinking-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      cursor: pointer;
+      user-select: none;
+      gap: 8px;
+    }
+
+    .thinking-header:hover {
+      background: rgba(168, 85, 247, 0.06);
+    }
+
+    .thinking-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .thinking-dots-live {
+      display: flex;
+      gap: 3px;
+    }
+
+    .thinking-dots-live span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      animation: dotBounce 1.4s ease-in-out infinite;
+    }
+
+    .thinking-dots-live span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .thinking-dots-live span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    .thinking-toggle {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    .thinking-body {
+      padding: 0 14px 12px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: rgba(168, 85, 247, 0.7);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid rgba(168, 85, 247, 0.1);
+    }
+
+    .thinking-block.collapsed .thinking-body {
+      display: none;
+    }
+
     /* ── Thinking animation ── */
     .thinking {
       display: flex;
@@ -1083,6 +1164,8 @@
     let tokenCount = 0;
     let stepCount = 0;
     let currentMsgBody = null;
+    let currentThinkingBody = null;
+    let currentThinkingBlock = null;
 
     // ── DOM refs ──
     const chatContainer = document.getElementById('chatContainer');
@@ -1173,6 +1256,21 @@
           stepCount++;
           metricSteps.textContent = stepCount;
           break;
+
+        case 'response.thinking.delta': {
+          const thinkDelta = event.delta || '';
+          if (thinkDelta && currentThinkingBody) {
+            // Reveal the thinking block on first thinking token
+            if (currentThinkingBlock && currentThinkingBlock.classList.contains('collapsed')) {
+              currentThinkingBlock.classList.remove('collapsed');
+              const toggleEl = currentThinkingBlock.querySelector('.thinking-toggle');
+              if (toggleEl) toggleEl.textContent = '▾ hide';
+            }
+            currentThinkingBody.textContent += thinkDelta;
+            currentThinkingBody.scrollTop = currentThinkingBody.scrollHeight;
+          }
+          break;
+        }
 
         case 'response.output_text.delta': {
           const delta = event.delta || '';
@@ -1367,6 +1465,16 @@
       if (currentMsgBody) {
         currentMsgBody.classList.remove('streaming-cursor');
       }
+      // Collapse thinking block when done
+      if (currentThinkingBlock) {
+        const dotsEl = currentThinkingBlock.querySelector('.thinking-dots-live');
+        if (dotsEl) dotsEl.style.display = 'none';
+        const toggleEl = currentThinkingBlock.querySelector('.thinking-toggle');
+        if (toggleEl) toggleEl.textContent = '▸ show';
+        currentThinkingBlock.classList.add('collapsed');
+        currentThinkingBlock = null;
+        currentThinkingBody = null;
+      }
       currentMsgBody = null;
       messageCount++;
       msgCountEl.textContent = `${messageCount} messages`;
@@ -1382,6 +1490,23 @@
     }
 
     function addAssistantMessage() {
+      // Create thinking block (hidden until we receive thinking tokens)
+      const thinkBlock = document.createElement('div');
+      thinkBlock.className = 'thinking-block collapsed';
+      thinkBlock.innerHTML = `
+        <div class="thinking-header" onclick="toggleThinking(this)">
+          <div class="thinking-label">
+            <span>🧠 Thinking</span>
+            <div class="thinking-dots-live"><span></span><span></span><span></span></div>
+          </div>
+          <span class="thinking-toggle">▸ show</span>
+        </div>
+        <div class="thinking-body"></div>
+      `;
+      chatContainer.appendChild(thinkBlock);
+      currentThinkingBlock = thinkBlock;
+      currentThinkingBody = thinkBlock.querySelector('.thinking-body');
+
       const div = document.createElement('div');
       div.className = 'message message-assistant';
       div.innerHTML = `
@@ -1395,6 +1520,13 @@
       chatContainer.appendChild(div);
       currentMsgBody = div.querySelector('.message-body');
       scrollToBottom();
+    }
+
+    function toggleThinking(header) {
+      const block = header.closest('.thinking-block');
+      const toggle = block.querySelector('.thinking-toggle');
+      block.classList.toggle('collapsed');
+      toggle.textContent = block.classList.contains('collapsed') ? '▸ show' : '▾ hide';
     }
 
     function addEventBadge(type, text) {

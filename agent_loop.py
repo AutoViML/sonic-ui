@@ -197,7 +197,9 @@ class ActiveResponseSession:
             )
             llm_messages = [{"role": "system", "content": system_message}] + snapshot.messages
 
+            THINK_PREFIX = "\x01THINK\x01"
             output_text = ""
+            thinking_text = ""
             try:
                 async for fragment in self.vllm_client.stream_chat(
                     model=self.request.model,
@@ -207,12 +209,22 @@ class ActiveResponseSession:
                     max_tokens=self.request.max_tokens,
                     cancel_event=self.cancel_event,
                 ):
-                    output_text += fragment
-                    await self.emit(
-                        "response.output_text.delta",
-                        {"delta": fragment},
-                        step_id=step_id,
-                    )
+                    if fragment.startswith(THINK_PREFIX):
+                        # Thinking/reasoning token — route separately
+                        think_fragment = fragment[len(THINK_PREFIX):]
+                        thinking_text += think_fragment
+                        await self.emit(
+                            "response.thinking.delta",
+                            {"delta": think_fragment},
+                            step_id=step_id,
+                        )
+                    else:
+                        output_text += fragment
+                        await self.emit(
+                            "response.output_text.delta",
+                            {"delta": fragment},
+                            step_id=step_id,
+                        )
             except asyncio.CancelledError:
                 await self._finalize_cancelled(step_id)
                 return
