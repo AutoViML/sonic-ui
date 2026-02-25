@@ -20,12 +20,16 @@ When calling a tool:
 {
   \"tool_call\": {
     \"name\": \"<tool_name>\",
-    \"arguments\": { ... }
+    \"arguments\": { \"<arg_name>\": \"<value>\", ... }
   }
 }
 
-Do NOT include markdown.
-Do NOT include text before or after JSON.
+CRITICAL RULES:
+- ALWAYS include ALL required arguments for every tool call. Never emit an empty arguments object {}.
+- If you are not sure what command to run, reason first, then emit the tool call with all required fields filled in.
+- Do NOT call a tool unless you have values for all required arguments.
+- Do NOT include markdown.
+- Do NOT include text before or after JSON.
 
 When you receive tool results:
 - Continue reasoning normally.
@@ -206,8 +210,17 @@ def build_system_message(
     if tools:
         tool_lines = ["Available tools:"]
         for spec in tools:
+            # Extract required fields from parameters schema so the model knows what is mandatory
+            required_fields = spec.parameters.get("required", [])
+            props = spec.parameters.get("properties", {})
+            arg_descriptions = ", ".join(
+                f"{k} ({props[k].get('type', 'string')}{'*' if k in required_fields else ''})"
+                for k in props
+            )
+            required_note = f" [REQUIRED: {', '.join(required_fields)}]" if required_fields else ""
             tool_lines.append(
-                f"- {spec.name}: {spec.description} (mode={spec.mode}, timeout={spec.timeout_seconds}s)"
+                f"- {spec.name}: {spec.description} (mode={spec.mode}, timeout={spec.timeout_seconds}s){required_note}"
+                + (f"\n  Args: {arg_descriptions}" if arg_descriptions else "")
             )
         parts.append("\n".join(tool_lines))
 
