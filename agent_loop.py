@@ -209,6 +209,7 @@ class ActiveResponseSession:
                     top_p=self.request.top_p,
                     max_tokens=self.request.max_tokens,
                     cancel_event=self.cancel_event,
+                    enable_thinking=self.settings.enable_thinking,
                 ):
                     if fragment.startswith(THINK_PREFIX):
                         # Thinking/reasoning token — route separately

@@ -27,10 +27,18 @@ When calling a tool:
 CRITICAL RULES:
 - ALWAYS include ALL required arguments for every tool call. Never emit an empty arguments object {}.
 - Do NOT call a tool unless you have values for all required arguments.
-- Do NOT include markdown.
+- Do NOT include markdown fences (no ``` wrapping).
 - Do NOT include text before or after JSON.
-- After receiving a tool result, IMMEDIATELY continue with the next tool call or produce the final answer. Do NOT stop and wait. Do NOT output explanatory text between tool calls.
-- Only produce plain text when you have completed ALL steps and are ready to give the final answer.
+- After receiving a tool result, IMMEDIATELY continue with the next tool call or produce the final answer. Do NOT stop and wait.
+- Only produce plain text when you have FULLY completed ALL steps.
+
+FILE OUTPUT RULES:
+- NEVER print long text, reports, code, or plans directly to chat.
+- ALWAYS save them to disk using shell_exec. Example:
+  {"tool_call":{"name":"shell_exec","arguments":{"command":"cat > report.md << 'HEREDOC'\\n# Report\\nContent here\\nHEREDOC","cwd":"/sandbox"}}}
+- If heredoc fails, use: printf '%s' \"content\" > file.md
+- If that fails, use: python3 -c \"open('file.md','w').write('content')\"
+- Only print a SHORT summary to chat after saving files.
 
 When you receive [TOOL RESULT]:
 - Do NOT acknowledge or summarize the result.
@@ -38,8 +46,7 @@ When you receive [TOOL RESULT]:
 
 When you receive [TOOL ERROR]:
 - Do NOT give up or stop.
-- Diagnose what went wrong (wrong path, missing tool, network issue, etc).
-- Immediately try a different approach (different command, fallback data, alternative method).
+- Diagnose what went wrong and try a different approach immediately.
 - Continue working toward the goal autonomously.
 
 If no tool is needed:
@@ -229,8 +236,11 @@ def build_system_message(
     if tools and filesystem_root:
         parts.append(
             f"SANDBOX DIRECTORY\n"
-            f"You MUST read and write ALL files to this directory: {filesystem_root}\n"
-            f"Do NOT use /tmp, /home, or any other path. Always use {filesystem_root} as cwd."
+            f"- ALL file I/O MUST use this directory: {filesystem_root}\n"
+            f"- Always set cwd to: {filesystem_root}\n"
+            f"- Do NOT use /tmp, /home, or any other path.\n"
+            f"- To write a file: shell_exec with command 'cat > filename << HEREDOC\\n...\\nHEREDOC'\n"
+            f"- After writing, confirm with: ls -la {filesystem_root}"
         )
 
     if tools:

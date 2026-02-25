@@ -50,6 +50,7 @@ class VLLMClient:
         top_p: float | None = None,
         max_tokens: int | None = None,
         cancel_event: Optional[asyncio.Event] = None,
+        enable_thinking: bool = False,
     ) -> AsyncGenerator[str, None]:
         payload: dict[str, object] = {
             "model": model,
@@ -62,6 +63,10 @@ class VLLMClient:
             payload["top_p"] = top_p
         if max_tokens is not None:
             payload["max_tokens"] = max_tokens
+
+        # Qwen3 / thinking-capable models: disable extended reasoning by default
+        # to restore full generation speed. Set ENABLE_THINKING=true to re-enable.
+        payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 
         url = f"{self.base_url}/v1/chat/completions"
 

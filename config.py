@@ -69,6 +69,7 @@ class Settings:
     enable_shell_exec: bool = False
     enable_http_get: bool = False
     filesystem_root: str = "."
+    enable_thinking: bool = False  # Qwen3/DeepSeek extended reasoning (slower)
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -114,4 +115,5 @@ class Settings:
             enable_shell_exec=_parse_bool(os.getenv("ENABLE_SHELL_EXEC"), False),
             enable_http_get=_parse_bool(os.getenv("ENABLE_HTTP_GET"), False),
             filesystem_root=os.getenv("FILESYSTEM_ROOT", "."),
+            enable_thinking=_parse_bool(os.getenv("ENABLE_THINKING"), False),
         )
