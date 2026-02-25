@@ -20,7 +20,7 @@ export PORT=9000
 
 # Tool Configuration
 export ENABLE_SHELL_EXEC=true
-export FILESYSTEM_ROOT="${FILESYSTEM_ROOT:-$PROJECT_ROOT/experiments}"
+export FILESYSTEM_ROOT="/Users/ramseshadri/Documents/experiments"
 export TOOL_ALLOWLIST="shell_exec"
 
 # Create experiments dir if it doesn't exist
