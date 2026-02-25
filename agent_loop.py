@@ -194,6 +194,7 @@ class ActiveResponseSession:
             system_message = build_system_message(
                 tools=list(tools.values()),
                 response_format=self.request.response_format,
+                filesystem_root=self.settings.filesystem_root,
             )
             llm_messages = [{"role": "system", "content": system_message}] + snapshot.messages
 

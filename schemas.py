@@ -221,8 +221,17 @@ def parse_tool_call_json(text: str) -> ParsedToolCall | None:
 def build_system_message(
     tools: list[ToolSpec],
     response_format: ResponseFormat | None,
+    filesystem_root: str | None = None,
 ) -> str:
     parts = [TOOL_SYSTEM_PROMPT.rstrip() if tools else PLAIN_SYSTEM_PROMPT.rstrip()]
+
+    # Inject sandbox directory so the model doesn't guess /tmp or other paths
+    if tools and filesystem_root:
+        parts.append(
+            f"SANDBOX DIRECTORY\n"
+            f"You MUST read and write ALL files to this directory: {filesystem_root}\n"
+            f"Do NOT use /tmp, /home, or any other path. Always use {filesystem_root} as cwd."
+        )
 
     if tools:
         tool_lines = ["Available tools:"]
