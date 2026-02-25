@@ -50,14 +50,16 @@ On subsequent messages in a thread, Sonic uses `previous_response_id` to continu
 
 ## Quick Start
 
-### 1. Install
-
 ```bash
+# 1. Clone & Install
 git clone https://github.com/YOUR_USERNAME/sonic-ui.git
 cd sonic-ui
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# 2. Start (The easy way)
+./sonic.sh [model-name]
 ```
 
 ### 2. Start your backend + Sonic UI
@@ -144,6 +146,22 @@ python -m uvicorn main:app --host 0.0.0.0 --port 9000
 Switch between models by changing the model name in the top-right input field of the UI.
 
 </details>
+
+---
+
+## 🛠️ Modern Tools & Agentic Mode
+
+Sonic UI now supports **server-side tool execution**. This allows models (like Qwen3-Coder or DeepSeek) to interact with your local environment in a safe sandbox.
+
+### 🔧 Included Tools:
+- **`shell_exec`**: Execute bash commands (pwd, ls, etc.) in a sandboxed directory.
+
+### 🧪 Sandboxing (Experiments Folder)
+By default, `sonic.sh` creates and uses an `experiments/` directory in the project root. The model cannot see or modify files outside this directory unless you change `FILESYSTEM_ROOT`.
+
+To enable tools:
+1. Use `sonic.sh` (it enables tools by default).
+2. Or set `ENABLE_SHELL_EXEC=true` and `FILESYSTEM_ROOT=/path/to/sandbox` manually.
 
 ---
 

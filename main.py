@@ -113,6 +113,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return JSONResponse({"object": "list", "data": models})
 
+    @app.get("/v1/config")
+    async def get_config() -> JSONResponse:
+        """Return basic server config for the UI."""
+        cfg: Settings = app.state.settings
+        return JSONResponse({
+            "default_model": cfg.model_name,
+            "allowed_models": sorted(list(cfg.allowed_models))
+        })
+
     @app.post("/v1/chat/completions", response_model=None)
     async def chat_completions(request: Request):
         """OpenAI-compatible HTTP proxy — forwards to the backend."""

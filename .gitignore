@@ -31,7 +31,14 @@ sonic_state.db-wal
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Local planning docs (do not commit)
 PRD.md
 PRD2.md
+
+# Sandbox/Experiments
+experiments/
+test_output/
+logs/
+*.log

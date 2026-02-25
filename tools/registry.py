@@ -175,7 +175,7 @@ class ToolRegistry:
     def _shell_exec_handler(self, arguments: dict[str, Any], settings: Settings) -> str:
         if not settings.enable_shell_exec:
             raise ValueError("shell_exec is disabled")
-        return shell_exec.execute(arguments, timeout_seconds=30)
+        return shell_exec.execute(arguments, timeout_seconds=30, cwd=settings.filesystem_root)
 
     def _http_get_handler(self, arguments: dict[str, Any], settings: Settings) -> str:
         if not settings.enable_http_get:

@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sonic — WebSocket AI Gateway</title>
-  <meta name="description" content="Sonic WebSocket Gateway UI for local AI with live streaming and performance metrics">
+  <meta name="description"
+    content="Sonic WebSocket Gateway UI for local AI with live streaming and performance metrics">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --bg-primary: #0a0a0f;
@@ -37,7 +47,8 @@
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       background: var(--bg-primary);
       color: var(--text-primary);
@@ -144,8 +155,15 @@
     }
 
     @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
     }
 
     .header-right {
@@ -297,8 +315,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .welcome-icon {
@@ -363,8 +388,15 @@
     }
 
     @keyframes msgIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message-user {
@@ -452,7 +484,9 @@
     }
 
     @keyframes blink {
-      50% { opacity: 0; }
+      50% {
+        opacity: 0;
+      }
     }
 
     /* ── Step & Tool Events ── */
@@ -626,12 +660,27 @@
       animation: dotBounce 1.4s ease-in-out infinite;
     }
 
-    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .thinking-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .thinking-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
 
     @keyframes dotBounce {
-      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1.2); }
+
+      0%,
+      80%,
+      100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
     }
 
     /* ── Speed comparison banner ── */
@@ -645,7 +694,9 @@
       display: none;
     }
 
-    .speed-banner.visible { display: block; }
+    .speed-banner.visible {
+      display: block;
+    }
 
     .speed-banner-title {
       font-size: 11px;
@@ -709,6 +760,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="app">
 
@@ -783,7 +835,8 @@
         <div class="welcome-icon">⚡</div>
         <div class="welcome-title">Sonic WebSocket Gateway</div>
         <div class="welcome-sub">
-          Experience your local AI at full speed. Persistent WebSocket connection, stateful threads, and instant streaming — no HTTP overhead.
+          Experience your local AI at full speed. Persistent WebSocket connection, stateful threads, and instant
+          streaming — no HTTP overhead.
         </div>
         <div class="welcome-features">
           <div class="feature-tag"><span class="dot"></span> Instant TTFT</div>
@@ -798,12 +851,8 @@
     <div class="input-area">
       <div class="input-row">
         <div class="input-wrapper">
-          <textarea
-            class="input-textarea"
-            id="inputTextarea"
-            placeholder="Type a message… (the WebSocket stays open)"
-            rows="1"
-          ></textarea>
+          <textarea class="input-textarea" id="inputTextarea" placeholder="Type a message… (the WebSocket stays open)"
+            rows="1"></textarea>
         </div>
         <button class="btn-send" id="btnSend" title="Send (Enter)">↑</button>
         <button class="btn-cancel" id="btnCancel" title="Cancel" style="display:none">■</button>
@@ -1019,12 +1068,32 @@
       messageCount++;
       msgCountEl.textContent = `${messageCount} messages`;
 
+      // Define tools for the model to use
+      const tools = [];
+      const m = modelInput.value.toLowerCase();
+      if (m.includes('coder') || m.includes('qwen') || m.includes('falcon') || m.includes('sonic') || m.includes('devstral')) {
+        tools.push({
+          type: "function",
+          name: "shell_exec",
+          mode: "server",
+          description: "Execute a bash command in the local environment",
+          parameters: {
+            type: "object",
+            properties: {
+              command: { type: "string", description: "The bash command to run (e.g., 'pwd', 'ls -la')" }
+            },
+            required: ["command"]
+          }
+        });
+      }
+
       // Prepare request
       const request = {
         type: 'response.create',
         response: {
-          model: modelInput.value.trim() || 'qwen3next',
+          model: modelInput.value.trim() || 'qwen3-coder',
           input: text,
+          tools: tools
         }
       };
 
@@ -1181,8 +1250,23 @@
 
     inputTextarea.addEventListener('input', autoResize);
 
-    // ── Auto-connect on load ──
-    connect();
+    // ── Auto-connect & Config ──
+    async function init() {
+      // Try to get model name from server config
+      try {
+        const resp = await fetch('/v1/config');
+        const data = await resp.json();
+        if (data.default_model) {
+          modelInput.value = data.default_model;
+        }
+      } catch (e) {
+        console.error('Could not fetch config', e);
+      }
+      connect();
+    }
+
+    init();
   </script>
 </body>
+
 </html>
