@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sonic — WebSocket AI Gateway</title>
+  <meta name="description" content="Sonic WebSocket Gateway UI for local AI with live streaming and performance metrics">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a28;
+      --bg-card: rgba(22, 22, 35, 0.8);
+      --bg-input: #0e0e18;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-active: rgba(0, 210, 255, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #555570;
+      --accent-cyan: #00d2ff;
+      --accent-blue: #3b82f6;
+      --accent-purple: #a855f7;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --gradient-sonic: linear-gradient(135deg, #00d2ff 0%, #3b82f6 50%, #a855f7 100%);
+      --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(0, 210, 255, 0.08) 0%, transparent 60%);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    /* ── Layout ── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--gradient-glow), var(--bg-primary);
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+      backdrop-filter: blur(20px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--gradient-sonic);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      background: var(--gradient-sonic);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .connection-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      transition: all 0.3s ease;
+    }
+
+    .connection-badge.connected {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+    }
+
+    .connection-badge.disconnected {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--accent-red);
+    }
+
+    .connection-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .model-selector {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .model-selector:focus {
+      border-color: var(--border-active);
+    }
+
+    .btn-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--border-active);
+    }
+
+    /* ── Metrics Bar ── */
+    .metrics-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 15, 0.6);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .metric {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .metric-value {
+      color: var(--accent-cyan);
+      font-weight: 500;
+    }
+
+    .metric.highlight .metric-value {
+      color: var(--accent-green);
+    }
+
+    .metric.warn .metric-value {
+      color: var(--accent-amber);
+    }
+
+    .metric-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── Thread Info ── */
+    .thread-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 15, 0.4);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .thread-info .thread-id {
+      color: var(--accent-purple);
+    }
+
+    .thread-info .msg-count {
+      color: var(--text-secondary);
+    }
+
+    /* ── Chat Area ── */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    .welcome-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      gap: 16px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: var(--gradient-sonic);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: #000;
+      box-shadow: 0 0 50px rgba(0, 210, 255, 0.2);
+    }
+
+    .welcome-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .welcome-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      max-width: 400px;
+      line-height: 1.7;
+    }
+
+    .welcome-features {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .feature-tag {
+      padding: 6px 14px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feature-tag .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+    }
+
+    /* ── Messages ── */
+    .message {
+      max-width: 780px;
+      margin: 0 auto 16px;
+      animation: msgIn 0.3s ease;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-user {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-user .message-content {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
+      padding: 12px 16px;
+      max-width: 75%;
+      color: var(--text-primary);
+    }
+
+    .message-assistant {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .message-assistant .message-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .message-assistant .message-label .model-badge {
+      padding: 1px 6px;
+      background: rgba(0, 210, 255, 0.1);
+      border: 1px solid rgba(0, 210, 255, 0.15);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      color: var(--accent-cyan);
+      font-size: 10px;
+    }
+
+    .message-assistant .message-body {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
+      padding: 16px 20px;
+      color: var(--text-primary);
+      line-height: 1.7;
+      backdrop-filter: blur(10px);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message-assistant .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      padding-left: 4px;
+    }
+
+    .message-meta .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .message-meta .meta-value {
+      color: var(--accent-cyan);
+    }
+
+    .message-meta .meta-value.fast {
+      color: var(--accent-green);
+    }
+
+    /* ── Streaming cursor ── */
+    .streaming-cursor::after {
+      content: '▎';
+      color: var(--accent-cyan);
+      animation: blink 0.8s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* ── Step & Tool Events ── */
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      margin: 4px 0;
+    }
+
+    .event-badge.step {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+    }
+
+    .event-badge.tool {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      color: var(--accent-purple);
+    }
+
+    .event-badge.complete {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--accent-green);
+    }
+
+    /* ── Input Area ── */
+    .input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .input-textarea {
+      width: 100%;
+      min-height: 44px;
+      max-height: 180px;
+      padding: 11px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .input-textarea:focus {
+      border-color: var(--border-active);
+      box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.08);
+    }
+
+    .input-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn-send {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--gradient-sonic);
+      border: none;
+      color: #000;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+    }
+
+    .btn-send:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-cancel {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--accent-red);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .input-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 4px 0;
+      font-size: 11px;
+      color: var(--text-muted);
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .input-hint kbd {
+      padding: 1px 5px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    /* ── Thinking animation ── */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .thinking-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .thinking-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      animation: dotBounce 1.4s ease-in-out infinite;
+    }
+
+    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ── Speed comparison banner ── */
+    .speed-banner {
+      max-width: 780px;
+      margin: 16px auto;
+      padding: 14px 18px;
+      background: rgba(0, 210, 255, 0.04);
+      border: 1px solid rgba(0, 210, 255, 0.1);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+
+    .speed-banner.visible { display: block; }
+
+    .speed-banner-title {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .speed-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .speed-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .speed-bar-label {
+      width: 90px;
+      text-align: right;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .speed-bar-track {
+      flex: 1;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .speed-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    .speed-bar-fill.sonic {
+      background: var(--gradient-sonic);
+    }
+
+    .speed-bar-fill.direct {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-icon">⚡</div>
+          <div>
+            <div class="logo-text">Sonic</div>
+            <div class="logo-sub">WebSocket Gateway</div>
+          </div>
+        </div>
+        <div class="connection-badge disconnected" id="connectionBadge">
+          <div class="connection-dot"></div>
+          <span id="connectionText">Disconnected</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <input type="text" class="model-selector" id="modelInput" value="qwen3next" placeholder="model name">
+        <button class="btn-icon" id="btnNewThread" title="New Thread">✦</button>
+        <button class="btn-icon" id="btnConnect" title="Reconnect">⟳</button>
+      </div>
+    </div>
+
+    <!-- Metrics bar -->
+    <div class="metrics-bar" id="metricsBar">
+      <div class="metric">
+        <span class="metric-label">TTFT</span>
+        <span class="metric-value" id="metricTTFT">—</span>
+      </div>
+      <div class="metric-sep"></div>
+      <div class="metric highlight">
+        <span class="metric-label">Speed</span>
+        <span class="metric-value" id="metricSpeed">—</span>
+      </div>
+      <div class="metric-sep"></div>
+      <div class="metric">
+        <span class="metric-label">Tokens</span>
+        <span class="metric-value" id="metricTokens">—</span>
+      </div>
+      <div class="metric-sep"></div>
+      <div class="metric">
+        <span class="metric-label">Duration</span>
+        <span class="metric-value" id="metricDuration">—</span>
+      </div>
+      <div class="metric-sep"></div>
+      <div class="metric">
+        <span class="metric-label">Steps</span>
+        <span class="metric-value" id="metricSteps">—</span>
+      </div>
+      <div class="metric-sep"></div>
+      <div class="metric">
+        <span class="metric-label">Protocol</span>
+        <span class="metric-value" style="color: var(--accent-purple)">WebSocket</span>
+      </div>
+    </div>
+
+    <!-- Thread info -->
+    <div class="thread-info" id="threadBar">
+      <span>Thread</span>
+      <span class="thread-id" id="threadId">—</span>
+      <span>·</span>
+      <span class="msg-count" id="msgCount">0 messages</span>
+      <span>·</span>
+      <span id="responseId">—</span>
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-container" id="chatContainer">
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-icon">⚡</div>
+        <div class="welcome-title">Sonic WebSocket Gateway</div>
+        <div class="welcome-sub">
+          Experience your local AI at full speed. Persistent WebSocket connection, stateful threads, and instant streaming — no HTTP overhead.
+        </div>
+        <div class="welcome-features">
+          <div class="feature-tag"><span class="dot"></span> Instant TTFT</div>
+          <div class="feature-tag"><span class="dot"></span> Stateful Threads</div>
+          <div class="feature-tag"><span class="dot"></span> Mid-stream Cancel</div>
+          <div class="feature-tag"><span class="dot"></span> Live Metrics</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <div class="input-row">
+        <div class="input-wrapper">
+          <textarea
+            class="input-textarea"
+            id="inputTextarea"
+            placeholder="Type a message… (the WebSocket stays open)"
+            rows="1"
+          ></textarea>
+        </div>
+        <button class="btn-send" id="btnSend" title="Send (Enter)">↑</button>
+        <button class="btn-cancel" id="btnCancel" title="Cancel" style="display:none">■</button>
+      </div>
+      <div class="input-hint">
+        <span><kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for newline</span>
+        <span id="wsUrl">ws://localhost:9000/v1/responses</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── State ──
+    const WS_URL = 'ws://localhost:9000/v1/responses';
+    let ws = null;
+    let lastResponseId = null;
+    let currentThreadId = null;
+    let messageCount = 0;
+    let isStreaming = false;
+
+    // Metrics tracking
+    let streamStartTime = 0;
+    let firstTokenTime = 0;
+    let tokenCount = 0;
+    let stepCount = 0;
+    let currentMsgBody = null;
+
+    // ── DOM refs ──
+    const chatContainer = document.getElementById('chatContainer');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const inputTextarea = document.getElementById('inputTextarea');
+    const btnSend = document.getElementById('btnSend');
+    const btnCancel = document.getElementById('btnCancel');
+    const btnConnect = document.getElementById('btnConnect');
+    const btnNewThread = document.getElementById('btnNewThread');
+    const modelInput = document.getElementById('modelInput');
+    const connectionBadge = document.getElementById('connectionBadge');
+    const connectionText = document.getElementById('connectionText');
+
+    // Metrics
+    const metricTTFT = document.getElementById('metricTTFT');
+    const metricSpeed = document.getElementById('metricSpeed');
+    const metricTokens = document.getElementById('metricTokens');
+    const metricDuration = document.getElementById('metricDuration');
+    const metricSteps = document.getElementById('metricSteps');
+
+    // Thread
+    const threadIdEl = document.getElementById('threadId');
+    const msgCountEl = document.getElementById('msgCount');
+    const responseIdEl = document.getElementById('responseId');
+
+    // ── WebSocket Connect ──
+    function connect() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        connectionBadge.className = 'connection-badge connected';
+        connectionText.textContent = 'Connected';
+        inputTextarea.focus();
+      };
+
+      ws.onclose = () => {
+        connectionBadge.className = 'connection-badge disconnected';
+        connectionText.textContent = 'Disconnected';
+        if (isStreaming) endStreaming();
+      };
+
+      ws.onerror = () => {
+        connectionBadge.className = 'connection-badge disconnected';
+        connectionText.textContent = 'Error';
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleEvent(data);
+      };
+    }
+
+    // ── Event Handler ──
+    function handleEvent(event) {
+      const type = event.type;
+
+      switch (type) {
+        case 'response.created': {
+          const resp = event.response;
+          lastResponseId = resp.id;
+          currentThreadId = event.thread_id || resp.thread_id;
+          threadIdEl.textContent = currentThreadId || '—';
+          responseIdEl.textContent = lastResponseId;
+          stepCount = 0;
+          break;
+        }
+
+        case 'response.in_progress':
+          // Already streaming
+          break;
+
+        case 'response.step.created':
+          stepCount++;
+          metricSteps.textContent = stepCount;
+          break;
+
+        case 'response.output_text.delta': {
+          const delta = event.delta || '';
+          if (!firstTokenTime && delta) {
+            firstTokenTime = performance.now();
+            const ttft = firstTokenTime - streamStartTime;
+            metricTTFT.textContent = ttft < 1000 ? `${ttft.toFixed(0)}ms` : `${(ttft / 1000).toFixed(2)}s`;
+            metricTTFT.parentElement.classList.toggle('highlight', ttft < 500);
+          }
+
+          // Count tokens (rough: split by spaces + punctuation)
+          if (delta) {
+            tokenCount += delta.split(/[\s]+/).filter(Boolean).length || 1;
+          }
+
+          if (currentMsgBody) {
+            currentMsgBody.textContent += delta;
+          }
+
+          // Update live speed
+          if (firstTokenTime) {
+            const elapsed = (performance.now() - firstTokenTime) / 1000;
+            if (elapsed > 0) {
+              metricSpeed.textContent = `${(tokenCount / elapsed).toFixed(1)} tok/s`;
+            }
+            metricTokens.textContent = tokenCount;
+            metricDuration.textContent = `${((performance.now() - streamStartTime) / 1000).toFixed(1)}s`;
+          }
+
+          scrollToBottom();
+          break;
+        }
+
+        case 'response.tool_call.created': {
+          const tc = event.tool_call || {};
+          addEventBadge('tool', `🔧 Tool: ${tc.name}(${JSON.stringify(tc.arguments || {})})`);
+          break;
+        }
+
+        case 'response.tool_result.waiting': {
+          const tc = event.tool_call || {};
+          addEventBadge('tool', `⏳ Waiting for tool result: ${tc.name || tc.id}`);
+          break;
+        }
+
+        case 'response.tool_result.received':
+          addEventBadge('complete', `✓ Tool result received`);
+          break;
+
+        case 'response.tool_call.completed':
+          break;
+
+        case 'response.step.completed': {
+          const step = event.step || {};
+          if (step.status === 'completed' || step.status === 'waiting_tool') {
+            // Continued normally
+          }
+          break;
+        }
+
+        case 'response.completed': {
+          const resp = event.response || {};
+          const totalTime = performance.now() - streamStartTime;
+          metricDuration.textContent = totalTime < 1000
+            ? `${totalTime.toFixed(0)}ms`
+            : `${(totalTime / 1000).toFixed(2)}s`;
+
+          // Add per-message metrics
+          if (currentMsgBody) {
+            const metaDiv = currentMsgBody.parentElement.querySelector('.message-meta');
+            if (metaDiv && firstTokenTime) {
+              const ttft = firstTokenTime - streamStartTime;
+              const elapsed = (performance.now() - firstTokenTime) / 1000;
+              const speed = elapsed > 0 ? (tokenCount / elapsed).toFixed(1) : '—';
+              metaDiv.innerHTML = `
+                <span class="meta-item">TTFT <span class="meta-value ${ttft < 500 ? 'fast' : ''}">${ttft.toFixed(0)}ms</span></span>
+                <span class="meta-item">Speed <span class="meta-value fast">${speed} tok/s</span></span>
+                <span class="meta-item">Tokens <span class="meta-value">${tokenCount}</span></span>
+                <span class="meta-item">Total <span class="meta-value">${(totalTime / 1000).toFixed(2)}s</span></span>
+                <span class="meta-item">Status <span class="meta-value" style="color: ${resp.status === 'completed' ? 'var(--accent-green)' : 'var(--accent-red)'}">${resp.status}</span></span>
+              `;
+            }
+          }
+
+          endStreaming();
+          break;
+        }
+
+        case 'error': {
+          const err = event.error || {};
+          addEventBadge('tool', `❌ Error: ${err.message || JSON.stringify(err)}`);
+          break;
+        }
+      }
+    }
+
+    // ── Send Message ──
+    function sendMessage() {
+      const text = inputTextarea.value.trim();
+      if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+      if (isStreaming) return;
+
+      // Hide welcome
+      if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+      // Show user message
+      addUserMessage(text);
+      messageCount++;
+      msgCountEl.textContent = `${messageCount} messages`;
+
+      // Prepare request
+      const request = {
+        type: 'response.create',
+        response: {
+          model: modelInput.value.trim() || 'qwen3next',
+          input: text,
+        }
+      };
+
+      if (lastResponseId) {
+        request.response.previous_response_id = lastResponseId;
+      }
+
+      // Reset metrics
+      streamStartTime = performance.now();
+      firstTokenTime = 0;
+      tokenCount = 0;
+      stepCount = 0;
+      metricTTFT.textContent = '…';
+      metricSpeed.textContent = '…';
+      metricTokens.textContent = '0';
+      metricDuration.textContent = '…';
+      metricSteps.textContent = '0';
+
+      // Send
+      ws.send(JSON.stringify(request));
+      inputTextarea.value = '';
+      autoResize();
+
+      // Start streaming state
+      startStreaming();
+      addAssistantMessage();
+    }
+
+    // ── Cancel ──
+    function cancelResponse() {
+      if (!ws || ws.readyState !== WebSocket.OPEN || !lastResponseId) return;
+      ws.send(JSON.stringify({
+        type: 'response.cancel',
+        response_id: lastResponseId,
+      }));
+    }
+
+    // ── Streaming UI State ──
+    function startStreaming() {
+      isStreaming = true;
+      btnSend.style.display = 'none';
+      btnCancel.style.display = 'flex';
+      inputTextarea.disabled = true;
+    }
+
+    function endStreaming() {
+      isStreaming = false;
+      btnSend.style.display = 'flex';
+      btnCancel.style.display = 'none';
+      inputTextarea.disabled = false;
+      inputTextarea.focus();
+
+      // Remove cursor
+      if (currentMsgBody) {
+        currentMsgBody.classList.remove('streaming-cursor');
+      }
+      currentMsgBody = null;
+      messageCount++;
+      msgCountEl.textContent = `${messageCount} messages`;
+    }
+
+    // ── DOM Helpers ──
+    function addUserMessage(text) {
+      const div = document.createElement('div');
+      div.className = 'message message-user';
+      div.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+      chatContainer.appendChild(div);
+      scrollToBottom();
+    }
+
+    function addAssistantMessage() {
+      const div = document.createElement('div');
+      div.className = 'message message-assistant';
+      div.innerHTML = `
+        <div class="message-label">
+          <span>Sonic</span>
+          <span class="model-badge">${escapeHtml(modelInput.value.trim())}</span>
+        </div>
+        <div class="message-body streaming-cursor"></div>
+        <div class="message-meta"></div>
+      `;
+      chatContainer.appendChild(div);
+      currentMsgBody = div.querySelector('.message-body');
+      scrollToBottom();
+    }
+
+    function addEventBadge(type, text) {
+      const badge = document.createElement('div');
+      badge.className = `event-badge ${type}`;
+      badge.textContent = text;
+      if (currentMsgBody) {
+        currentMsgBody.parentElement.insertBefore(badge, currentMsgBody.parentElement.querySelector('.message-meta'));
+      }
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      requestAnimationFrame(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ── New Thread ──
+    function newThread() {
+      lastResponseId = null;
+      currentThreadId = null;
+      messageCount = 0;
+      threadIdEl.textContent = '—';
+      msgCountEl.textContent = '0 messages';
+      responseIdEl.textContent = '—';
+      metricTTFT.textContent = '—';
+      metricSpeed.textContent = '—';
+      metricTokens.textContent = '—';
+      metricDuration.textContent = '—';
+      metricSteps.textContent = '—';
+
+      // Clear chat
+      chatContainer.innerHTML = '';
+      const welcome = document.createElement('div');
+      welcome.className = 'welcome-screen';
+      welcome.id = 'welcomeScreen';
+      welcome.innerHTML = `
+        <div class="welcome-icon">⚡</div>
+        <div class="welcome-title">New Thread</div>
+        <div class="welcome-sub">Fresh conversation — the WebSocket connection stays open.</div>
+      `;
+      chatContainer.appendChild(welcome);
+    }
+
+    // ── Auto-resize textarea ──
+    function autoResize() {
+      inputTextarea.style.height = 'auto';
+      inputTextarea.style.height = Math.min(inputTextarea.scrollHeight, 180) + 'px';
+    }
+
+    // ── Event Listeners ──
+    btnSend.addEventListener('click', sendMessage);
+    btnCancel.addEventListener('click', cancelResponse);
+    btnConnect.addEventListener('click', connect);
+    btnNewThread.addEventListener('click', newThread);
+
+    inputTextarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    inputTextarea.addEventListener('input', autoResize);
+
+    // ── Auto-connect on load ──
+    connect();
+  </script>
+</body>
+</html>

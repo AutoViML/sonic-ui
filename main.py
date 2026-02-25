@@ -6,10 +6,11 @@ import logging
 import time
 import uuid
 from collections import defaultdict, deque
+from pathlib import Path
 from typing import Any, Deque
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from agent_loop import ActiveResponseSession
 from config import Settings
@@ -87,6 +88,161 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/healthz")
     async def healthz() -> JSONResponse:
         return JSONResponse({"status": "ok"})
+
+    @app.get("/")
+    async def root_ui() -> FileResponse:
+        """Serve the Sonic WebSocket chat UI."""
+        ui_path = Path(__file__).parent / "ui" / "index.html"
+        return FileResponse(ui_path, media_type="text/html")
+
+    # ── OpenAI-compatible REST API (for Cline, Continue, etc.) ──────────
+
+    @app.get("/v1/models")
+    async def list_models() -> JSONResponse:
+        """Return available models in OpenAI list format."""
+        cfg: Settings = app.state.settings
+        models = []
+        for model_id in sorted(cfg.allowed_models):
+            models.append(
+                {
+                    "id": model_id,
+                    "object": "model",
+                    "created": int(time.time()),
+                    "owned_by": "sonic",
+                }
+            )
+        return JSONResponse({"object": "list", "data": models})
+
+    @app.post("/v1/chat/completions", response_model=None)
+    async def chat_completions(request: Request):
+        """OpenAI-compatible HTTP proxy — forwards to the backend."""
+        cfg: Settings = app.state.settings
+        vllm: VLLMClient = app.state.vllm_client
+
+        try:
+            body = await request.json()
+        except Exception:
+            return JSONResponse(
+                {"error": {"message": "Invalid JSON body", "type": "invalid_request_error"}},
+                status_code=400,
+            )
+
+        model = body.get("model") or cfg.model_name
+        messages = body.get("messages", [])
+        stream = body.get("stream", False)
+        temperature = body.get("temperature")
+        top_p = body.get("top_p")
+        max_tokens = body.get("max_tokens")
+
+        if not messages:
+            return JSONResponse(
+                {"error": {"message": "messages is required", "type": "invalid_request_error"}},
+                status_code=400,
+            )
+
+        if stream:
+            # Stream back as SSE — proxy each fragment from the backend.
+            async def _sse_generator():
+                resp_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
+                created = int(time.time())
+                try:
+                    async for fragment in vllm.stream_chat(
+                        model=model,
+                        messages=messages,
+                        temperature=temperature,
+                        top_p=top_p,
+                        max_tokens=max_tokens,
+                    ):
+                        chunk = {
+                            "id": resp_id,
+                            "object": "chat.completion.chunk",
+                            "created": created,
+                            "model": model,
+                            "choices": [
+                                {
+                                    "index": 0,
+                                    "delta": {"content": fragment},
+                                    "finish_reason": None,
+                                }
+                            ],
+                        }
+                        yield f"data: {json.dumps(chunk)}\n\n"
+                    # Send final chunk with finish_reason
+                    final_chunk = {
+                        "id": resp_id,
+                        "object": "chat.completion.chunk",
+                        "created": created,
+                        "model": model,
+                        "choices": [
+                            {
+                                "index": 0,
+                                "delta": {},
+                                "finish_reason": "stop",
+                            }
+                        ],
+                    }
+                    yield f"data: {json.dumps(final_chunk)}\n\n"
+                    yield "data: [DONE]\n\n"
+                except Exception as exc:
+                    error_chunk = {
+                        "error": {
+                            "message": str(exc),
+                            "type": "server_error",
+                        }
+                    }
+                    yield f"data: {json.dumps(error_chunk)}\n\n"
+                    yield "data: [DONE]\n\n"
+
+            return StreamingResponse(
+                _sse_generator(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+
+        # Non-streaming: collect all fragments and return a complete response.
+        full_text = ""
+        try:
+            async for fragment in vllm.stream_chat(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                top_p=top_p,
+                max_tokens=max_tokens,
+            ):
+                full_text += fragment
+        except Exception as exc:
+            return JSONResponse(
+                {"error": {"message": str(exc), "type": "server_error"}},
+                status_code=502,
+            )
+
+        return JSONResponse(
+            {
+                "id": f"chatcmpl-{uuid.uuid4().hex[:24]}",
+                "object": "chat.completion",
+                "created": int(time.time()),
+                "model": model,
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": full_text,
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": -1,
+                    "completion_tokens": -1,
+                    "total_tokens": -1,
+                },
+            }
+        )
 
     @app.websocket("/v1/responses")
     async def responses_socket(websocket: WebSocket) -> None:
