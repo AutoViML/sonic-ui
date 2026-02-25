@@ -466,7 +466,11 @@ class ActiveResponseSession:
         )
         try:
             result = await asyncio.wait_for(
-                self.tool_registry.execute_server_tool(tool_def, arguments),
+                self.tool_registry.execute_server_tool(
+                    tool_def,
+                    arguments,
+                    context={"current_dir": self.request.current_dir}
+                ),
                 timeout=tool_def.timeout_seconds,
             )
         except asyncio.TimeoutError:

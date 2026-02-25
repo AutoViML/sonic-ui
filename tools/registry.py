@@ -17,7 +17,7 @@ class ToolDefinition:
     parameters: dict[str, Any]
     mode: str
     timeout_seconds: int
-    handler: Callable[[dict[str, Any], Settings], Any] | None = None
+    handler: Callable[[dict[str, Any], Settings, dict[str, Any]], Any] | None = None
 
 
 class ToolRegistry:
@@ -44,6 +44,7 @@ class ToolRegistry:
         self,
         tool: ToolDefinition,
         arguments: dict[str, Any],
+        context: dict[str, Any] | None = None,
     ) -> Any:
         if tool.mode != "server":
             raise ValueError(f"Tool '{tool.name}' is not server-executed")
@@ -54,7 +55,7 @@ class ToolRegistry:
         if not self._is_tool_allowed(tool.name):
             raise ValueError(f"Tool '{tool.name}' is not allowlisted")
 
-        return tool.handler(arguments, self.settings)
+        return tool.handler(arguments, self.settings, context or {})
 
     def _is_tool_allowed(self, name: str) -> bool:
         if not self.settings.tool_allowlist:
@@ -89,9 +90,9 @@ class ToolRegistry:
                 },
                 mode="server",
                 timeout_seconds=30,
-                handler=lambda args, settings: filesystem_read.execute(
+                handler=lambda args, settings, ctx: filesystem_read.execute(
                     args,
-                    filesystem_root=settings.filesystem_root,
+                    filesystem_root=ctx.get("current_dir") or settings.filesystem_root,
                 ),
             ),
             "filesystem_write": ToolDefinition(
@@ -107,9 +108,9 @@ class ToolRegistry:
                 },
                 mode="server",
                 timeout_seconds=30,
-                handler=lambda args, settings: filesystem_write.execute(
+                handler=lambda args, settings, ctx: filesystem_write.execute(
                     args,
-                    filesystem_root=settings.filesystem_root,
+                    filesystem_root=ctx.get("current_dir") or settings.filesystem_root,
                 ),
             ),
             "shell_exec": ToolDefinition(
@@ -172,12 +173,15 @@ class ToolRegistry:
             return str(int(value))
         return str(value)
 
-    def _shell_exec_handler(self, arguments: dict[str, Any], settings: Settings) -> str:
+    def _shell_exec_handler(self, arguments: dict[str, Any], settings: Settings, context: dict[str, Any]) -> str:
         if not settings.enable_shell_exec:
             raise ValueError("shell_exec is disabled")
-        return shell_exec.execute(arguments, timeout_seconds=30, cwd=settings.filesystem_root)
+        
+        # Prioritize cwd from arguments if present, then context, else settings
+        cwd = arguments.get("cwd") or context.get("current_dir") or settings.filesystem_root
+        return shell_exec.execute(arguments, timeout_seconds=30, cwd=cwd)
 
-    def _http_get_handler(self, arguments: dict[str, Any], settings: Settings) -> str:
+    def _http_get_handler(self, arguments: dict[str, Any], settings: Settings, context: dict[str, Any]) -> str:
         if not settings.enable_http_get:
             raise ValueError("http_get is disabled")
         return http_get.execute(arguments, timeout_seconds=15)

@@ -11,6 +11,8 @@ from typing import Any, Deque
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+import os
+import subprocess
 
 from agent_loop import ActiveResponseSession
 from config import Settings
@@ -121,6 +123,53 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "default_model": cfg.model_name,
             "allowed_models": sorted(list(cfg.allowed_models))
         })
+
+    @app.get("/v1/files")
+    async def list_files(path: str = "."):
+        """Simple file explorer endpoint."""
+        try:
+            root = Path(path).resolve()
+            
+            items = []
+            for item in sorted(os.listdir(root)):
+                if item.startswith('.'): continue
+                full_path = root / item
+                items.append({
+                    "name": item,
+                    "is_dir": full_path.is_dir(),
+                    "path": str(full_path)
+                })
+            return JSONResponse({"path": str(root), "items": items})
+        except Exception as e:
+            return JSONResponse({"error": str(e)}, status_code=500)
+
+    @app.post("/v1/terminal")
+    async def terminal_exec(request: Request):
+        """Simple terminal execution endpoint."""
+        try:
+            body = await request.json()
+            command = body.get("command")
+            cwd = body.get("cwd", ".")
+            
+            if not command:
+                return JSONResponse({"error": "Command is required"}, status_code=400)
+            
+            result = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=cwd
+            )
+            return JSONResponse({
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "cwd": os.getcwd()
+            })
+        except Exception as e:
+            return JSONResponse({"error": str(e)}, status_code=500)
 
     @app.post("/v1/chat/completions", response_model=None)
     async def chat_completions(request: Request):

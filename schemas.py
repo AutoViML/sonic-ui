@@ -73,6 +73,7 @@ class ResponseCreateRequest:
     temperature: float
     top_p: float
     max_tokens: int | None
+    current_dir: str | None = None
 
 
 @dataclass(slots=True)
@@ -132,6 +133,7 @@ def parse_response_create(payload: dict[str, Any], settings: Settings) -> Respon
         temperature=temperature,
         top_p=top_p,
         max_tokens=max_tokens,
+        current_dir=response.get("current_dir")
     )
 
 
