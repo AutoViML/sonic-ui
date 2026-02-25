@@ -48,7 +48,7 @@ class RateLimiter:
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
-    app = FastAPI(title="Sonic WS Gateway", version="0.2.0")
+    app = FastAPI(title="Sonic UI: Superfast Local Model Chat UI", version="0.2.0")
 
     app.state.settings = settings or Settings.from_env()
     app.state.store = None

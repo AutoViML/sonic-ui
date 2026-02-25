@@ -1,10 +1,10 @@
 <div align="center">
 
-# ⚡ Sonic UI
+# ⚡ Sonic UI: Superfast Local Model Chat UI
 
-**A beautiful WebSocket chat interface for [Sonic](https://github.com/mitkox/sonic) — the gateway that makes your local AI feel instant.** Built on the original Sonic codebase created by Mitko Vasilev (mitkox).
+**A new, superfast chat interface for local models that brings the bare necessities of VS Code to your AI workflow.** Built on the high-performance [Sonic](https://github.com/mitkox/sonic) gateway, Sonic UI makes local LLMs feel instant.
 
-Sonic UI brings a premium, real-time chat experience to Sonic and any OpenAI-compatible local backend — **llama.cpp**, **vLLM**, or **Ollama** — with live performance metrics, stateful threads, and streaming that doesn't phone home.
+Sonic UI delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
 
 ![Sonic UI — WebSocket chat with live performance metrics](docs/sonic-ui-screenshot.png)
 
@@ -22,18 +22,22 @@ Sonic UI brings a premium, real-time chat experience to Sonic and any OpenAI-com
 
 ## Why Sonic UI?
 
-The original [mitkox/sonic](https://github.com/mitkox/sonic) delivers genuine speed gains for local AI models and agents through its innovative WebSocket architecture — but it ships without a UI. Sonic UI fixes that.
+Modern AI tools often come with heavy UI bloat or hidden token costs. Sonic UI is designed for developers who want the **bare necessities of a coding environment (Explorer + Terminal)** paired with a superfast, stateful chat interface.
+
+By leveraging Sonic’s innovative WebSocket architecture, you get a genuine speed boost over traditional REST-based interfaces — without the overhead.
 
 You get **all the speed benefits** of the original gateway, plus:
 
 | Feature | What it means |
 |:---|:---|
-| 🖥️ **Built-in chat UI** | Open `http://localhost:9000` — no setup, no dependencies |
-| 📊 **Live performance metrics** | TTFT, tokens/sec, total duration — updated in real-time as tokens stream |
-| 🔁 **Stateful threads** | Conversation history lives server-side; follow-ups don't re-send the full context |
-| ⬛ **Mid-stream cancel** | Stop generation instantly with one click |
-| 🔌 **OpenAI REST proxy** | Works with **Cline**, **Continue**, and any OpenAI-compatible tool via `/v1/chat/completions` |
-| 🏠 **100% local** | Nothing leaves your machine — no API keys, no telemetry |
+| ⌨️ **VS Code Essentials** | Integrated File Explorer and Terminal for a streamlined dev workflow |
+| 🚀 **Superfast Chat** | Persistent WebSocket connection means zero reconnection latency |
+| 📊 **Live Metrics** | TTFT, tokens/sec, and total duration updated in real-time |
+| 🔁 **Stateful Threads** | History lives server-side; follow-ups only send the *new* message, slashing processing time |
+| 🔌 **No Token Costs** | 100% local inference via Ollama, llama.cpp, or vLLM |
+| ⬛ **Mid-stream Cancel** | Stop generation instantly with one click |
+| 🏠 **Zero Bloat** | A focused, high-performance interface that stays out of your way |
+| 🔌 **OpenAI REST Proxy** | Use it as a backend for Cline, Continue, and other tools via `/v1/chat/completions` |
 
 ### Where the speed comes from
 
@@ -197,7 +201,13 @@ In your tool's settings:
 ### 💬 Chat Interface
 Type a message and watch tokens stream in real time over WebSocket. The connection stays open between messages — no reconnection overhead.
 
-### 📊 Live Metrics Bar
+### � Integrated File Explorer
+Navigate your local project files directly from the sidebar. Just like VS Code, it lets you keep your codebase in view while you chat.
+
+### ⌨️ Built-in Terminal
+Run shell commands, manage files, or check logs without leaving the interface. Integrated seamlessly for an all-in-one developer experience.
+
+### �📊 Live Metrics Bar
 Every response displays real-time performance data:
 - **TTFT** — Time to first token (lower is better)
 - **Speed** — Tokens per second during generation
