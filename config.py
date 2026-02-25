@@ -49,8 +49,8 @@ class Settings:
 
     # Phase 2 state and loop controls.
     state_db_path: str = "./sonic_state.db"
-    max_steps: int = 8
-    max_tool_calls: int = 16
+    max_steps: int = 25
+    max_tool_calls: int = 50
     tool_wait_timeout_seconds: int = 120
 
     require_api_key: bool = False
@@ -69,6 +69,7 @@ class Settings:
     enable_shell_exec: bool = False
     enable_http_get: bool = False
     filesystem_root: str = "."
+    enable_thinking: bool = False  # Qwen3/DeepSeek extended reasoning (slower)
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -90,8 +91,8 @@ class Settings:
             max_record_age_seconds=max_age,
             state_path=fallback_state_path,
             state_db_path=state_db_path or fallback_state_path or "./sonic_state.db",
-            max_steps=_parse_int(os.getenv("MAX_STEPS"), 8),
-            max_tool_calls=_parse_int(os.getenv("MAX_TOOL_CALLS"), 16),
+            max_steps=_parse_int(os.getenv("MAX_STEPS"), 25),
+            max_tool_calls=_parse_int(os.getenv("MAX_TOOL_CALLS"), 50),
             tool_wait_timeout_seconds=_parse_int(
                 os.getenv("TOOL_WAIT_TIMEOUT_SECONDS"),
                 120,
@@ -114,4 +115,5 @@ class Settings:
             enable_shell_exec=_parse_bool(os.getenv("ENABLE_SHELL_EXEC"), False),
             enable_http_get=_parse_bool(os.getenv("ENABLE_HTTP_GET"), False),
             filesystem_root=os.getenv("FILESYSTEM_ROOT", "."),
+            enable_thinking=_parse_bool(os.getenv("ENABLE_THINKING"), False),
         )

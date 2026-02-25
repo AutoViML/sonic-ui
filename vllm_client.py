@@ -50,6 +50,7 @@ class VLLMClient:
         top_p: float | None = None,
         max_tokens: int | None = None,
         cancel_event: Optional[asyncio.Event] = None,
+        enable_thinking: bool = False,
     ) -> AsyncGenerator[str, None]:
         payload: dict[str, object] = {
             "model": model,
@@ -62,6 +63,10 @@ class VLLMClient:
             payload["top_p"] = top_p
         if max_tokens is not None:
             payload["max_tokens"] = max_tokens
+
+        # Qwen3 / thinking-capable models: disable extended reasoning by default
+        # to restore full generation speed. Set ENABLE_THINKING=true to re-enable.
+        payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
 
         url = f"{self.base_url}/v1/chat/completions"
 
@@ -87,9 +92,12 @@ class VLLMClient:
                     except json.JSONDecodeError:
                         continue
 
-                    fragment = _extract_fragment(payload)
-                    if fragment:
-                        yield fragment
+                    thinking, content = _extract_fragment(payload)
+                    # Yield thinking tokens with sentinel so agent_loop can route them
+                    if thinking:
+                        yield "\x01THINK\x01" + thinking
+                    if content:
+                        yield content
         except httpx.TimeoutException as exc:
             raise VLLMBackendError(f"Backend timeout: {exc}") from exc
         except httpx.HTTPError as exc:
@@ -131,23 +139,36 @@ def _find_frame_end(buffer: str) -> int:
     return min(idx, idx_crlf)
 
 
-def _extract_fragment(payload: dict) -> str:
+def _extract_fragment(payload: dict) -> tuple[str, str]:
+    """Return (thinking_fragment, content_fragment).
+
+    thinking_fragment — from delta.reasoning_content (Qwen3, DeepSeek-R1 via vLLM)
+    content_fragment  — from delta.content (regular output)
+    """
     choices = payload.get("choices")
     if not isinstance(choices, list) or not choices:
-        return ""
+        return "", ""
 
     first = choices[0]
     if not isinstance(first, dict):
-        return ""
+        return "", ""
 
     delta = first.get("delta")
+    thinking = ""
+    content = ""
+
     if isinstance(delta, dict):
-        content = delta.get("content")
-        if isinstance(content, str):
-            return content
+        r = delta.get("reasoning_content")
+        if isinstance(r, str):
+            thinking = r
+        c = delta.get("content")
+        if isinstance(c, str):
+            content = c
 
-    text = first.get("text")
-    if isinstance(text, str):
-        return text
+    # Fallback: text field (some backends)
+    if not content:
+        text = first.get("text")
+        if isinstance(text, str):
+            content = text
 
-    return ""
+    return thinking, content

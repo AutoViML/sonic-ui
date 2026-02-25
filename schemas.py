@@ -7,7 +7,7 @@ from typing import Any, Optional
 from config import Settings
 
 
-TOOL_SYSTEM_PROMPT = """You are an AI coding agent.
+TOOL_SYSTEM_PROMPT = """You are an autonomous AI coding agent.
 
 TOOLS
 You may call tools when needed.
@@ -20,16 +20,34 @@ When calling a tool:
 {
   \"tool_call\": {
     \"name\": \"<tool_name>\",
-    \"arguments\": { ... }
+    \"arguments\": { \"<arg_name>\": \"<value>\", ... }
   }
 }
 
-Do NOT include markdown.
-Do NOT include text before or after JSON.
+CRITICAL RULES:
+- ALWAYS include ALL required arguments for every tool call. Never emit an empty arguments object {}.
+- Do NOT call a tool unless you have values for all required arguments.
+- Do NOT include markdown fences (no ``` wrapping).
+- Do NOT include text before or after JSON.
+- After receiving a tool result, IMMEDIATELY continue with the next tool call or produce the final answer. Do NOT stop and wait.
+- Only produce plain text when you have FULLY completed ALL steps.
 
-When you receive tool results:
-- Continue reasoning normally.
-- Use them to produce the final answer.
+FILE OUTPUT RULES:
+- NEVER print long text, reports, code, or plans directly to chat.
+- ALWAYS save them to disk using shell_exec. Example:
+  {"tool_call":{"name":"shell_exec","arguments":{"command":"cat > report.md << 'HEREDOC'\\n# Report\\nContent here\\nHEREDOC","cwd":"/sandbox"}}}
+- If heredoc fails, use: printf '%s' \"content\" > file.md
+- If that fails, use: python3 -c \"open('file.md','w').write('content')\"
+- Only print a SHORT summary to chat after saving files.
+
+When you receive [TOOL RESULT]:
+- Do NOT acknowledge or summarize the result.
+- Immediately emit the next tool_call JSON or write the final answer.
+
+When you receive [TOOL ERROR]:
+- Do NOT give up or stop.
+- Diagnose what went wrong and try a different approach immediately.
+- Continue working toward the goal autonomously.
 
 If no tool is needed:
 - Respond normally with plain text.
@@ -174,6 +192,16 @@ def parse_tool_call_json(text: str) -> ParsedToolCall | None:
     if not stripped:
         return None
 
+    # Strip markdown code fences if the model wrapped the JSON (e.g. ```json ... ```)
+    if stripped.startswith("```"):
+        lines = stripped.split("\n")
+        # Drop the opening fence line (```json or ```)
+        lines = lines[1:]
+        # Drop the closing fence line if present
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        stripped = "\n".join(lines).strip()
+
     try:
         value = json.loads(stripped)
     except json.JSONDecodeError:
@@ -200,14 +228,35 @@ def parse_tool_call_json(text: str) -> ParsedToolCall | None:
 def build_system_message(
     tools: list[ToolSpec],
     response_format: ResponseFormat | None,
+    filesystem_root: str | None = None,
 ) -> str:
     parts = [TOOL_SYSTEM_PROMPT.rstrip() if tools else PLAIN_SYSTEM_PROMPT.rstrip()]
+
+    # Inject sandbox directory so the model doesn't guess /tmp or other paths
+    if tools and filesystem_root:
+        parts.append(
+            f"SANDBOX DIRECTORY\n"
+            f"- ALL file I/O MUST use this directory: {filesystem_root}\n"
+            f"- Always set cwd to: {filesystem_root}\n"
+            f"- Do NOT use /tmp, /home, or any other path.\n"
+            f"- To write a file: shell_exec with command 'cat > filename << HEREDOC\\n...\\nHEREDOC'\n"
+            f"- After writing, confirm with: ls -la {filesystem_root}"
+        )
 
     if tools:
         tool_lines = ["Available tools:"]
         for spec in tools:
+            # Extract required fields from parameters schema so the model knows what is mandatory
+            required_fields = spec.parameters.get("required", [])
+            props = spec.parameters.get("properties", {})
+            arg_descriptions = ", ".join(
+                f"{k} ({props[k].get('type', 'string')}{'*' if k in required_fields else ''})"
+                for k in props
+            )
+            required_note = f" [REQUIRED: {', '.join(required_fields)}]" if required_fields else ""
             tool_lines.append(
-                f"- {spec.name}: {spec.description} (mode={spec.mode}, timeout={spec.timeout_seconds}s)"
+                f"- {spec.name}: {spec.description} (mode={spec.mode}, timeout={spec.timeout_seconds}s){required_note}"
+                + (f"\n  Args: {arg_descriptions}" if arg_descriptions else "")
             )
         parts.append("\n".join(tool_lines))
 
