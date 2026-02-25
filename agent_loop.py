@@ -158,6 +158,8 @@ class ActiveResponseSession:
         step_count = 0
         tool_call_count = 0
         schema_attempts = 0
+        consecutive_tool_errors = 0
+        MAX_CONSECUTIVE_ERRORS = 3
 
         while step_count < self.settings.max_steps:
             if self.cancel_event.is_set():
@@ -282,6 +284,7 @@ class ActiveResponseSession:
                         arguments=tool_call.arguments,
                     )
                     if ok:
+                        consecutive_tool_errors = 0  # reset on success
                         await self.store.complete_step(step_id, status="completed")
                         await self.emit(
                             "response.step.completed",
@@ -289,7 +292,24 @@ class ActiveResponseSession:
                             step_id=step_id,
                         )
                         continue
-                    return
+                    elif ok is None:
+                        # Non-fatal error: error was fed back to model, continue the loop
+                        consecutive_tool_errors += 1
+                        if consecutive_tool_errors >= MAX_CONSECUTIVE_ERRORS:
+                            await self._fail_response(
+                                code="tool_error",
+                                message=f"Tool failed {MAX_CONSECUTIVE_ERRORS} times in a row. Giving up.",
+                                step_id=step_id,
+                            )
+                            return
+                        await self.store.complete_step(step_id, status="tool_error_retry")
+                        await self.emit(
+                            "response.step.completed",
+                            {"step": {"id": step_id, "index": step_count, "status": "tool_error_retry"}},
+                            step_id=step_id,
+                        )
+                        continue
+                    return  # Fatal error (timeout), already handled
 
                 await self.store.complete_step(step_id, status="waiting_tool")
                 await self.emit(
@@ -452,7 +472,13 @@ class ActiveResponseSession:
         tool_call_id: str,
         tool_def: ToolDefinition,
         arguments: dict[str, Any],
-    ) -> bool:
+    ) -> bool | None:
+        """Execute a server-side tool.
+        Returns:
+          True  — success, tool result appended, loop should continue
+          None  — non-fatal error, error message appended, loop should continue
+          False — fatal error (timeout), response already failed
+        """
         await self.emit(
             "response.tool_result.waiting",
             {
@@ -484,19 +510,31 @@ class ActiveResponseSession:
                 message=f"Tool '{tool_def.name}' timed out",
                 step_id=step_id,
             )
-            return False
+            return False  # Fatal — cannot recover
         except Exception as exc:  # pylint: disable=broad-except
+            error_msg = str(exc)
             await self.store.complete_tool_call(
                 tool_call_id,
                 status="failed",
-                last_error=str(exc),
+                last_error=error_msg,
             )
-            await self._fail_response(
-                code="tool_error",
-                message=f"Tool '{tool_def.name}' failed: {exc}",
+            # Emit error badge in UI
+            await self.emit(
+                "error",
+                {"error": {"code": "tool_error", "message": f"Tool '{tool_def.name}' failed: {error_msg}"}},
                 step_id=step_id,
             )
-            return False
+            # Feed the error back to the model — non-fatal, model can self-correct
+            await self.store.append_message(
+                self.response_id,
+                role="user",
+                content=(
+                    f"[TOOL ERROR] {error_msg}\n"
+                    "The command failed. Diagnose the issue, try a different approach, and continue."
+                ),
+                step_id=step_id,
+            )
+            return None  # Non-fatal — caller should continue the loop
 
         await self.store.add_tool_result(
             tool_call_id=tool_call_id,
