@@ -40,7 +40,7 @@ else
 fi
 
 echo "------------------------------------------------"
-echo "⚡ SONIC UI - LAUNCHER"
+echo "⚡ Sonic UI: Superfast Local Model Chat UI"
 echo "------------------------------------------------"
 echo "🤖 Model:   $MODEL"
 echo "🔗 Backend: $VLLM_URL"

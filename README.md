@@ -1,10 +1,10 @@
 <div align="center">
 
-# ⚡ Sonic UI
+# ⚡ Sonic UI: Superfast Local Model Chat UI
 
-**A beautiful WebSocket chat interface for [Sonic](https://github.com/mitkox/sonic) — the gateway that makes your local AI feel instant.** Built on the original Sonic codebase created by Mitko Vasilev (mitkox).
+**A new, superfast chat interface for local models that brings the bare necessities of VS Code to your AI workflow.** Built on the high-performance [Sonic](https://github.com/mitkox/sonic) gateway, Sonic UI makes local LLMs feel instant.
 
-Sonic UI brings a premium, real-time chat experience to Sonic and any OpenAI-compatible local backend — **llama.cpp**, **vLLM**, or **Ollama** — with live performance metrics, stateful threads, and streaming that doesn't phone home.
+Sonic UI delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
 
 ![Sonic UI — WebSocket chat with live performance metrics](docs/sonic-ui-screenshot.png)
 
@@ -22,18 +22,22 @@ Sonic UI brings a premium, real-time chat experience to Sonic and any OpenAI-com
 
 ## Why Sonic UI?
 
-The original [mitkox/sonic](https://github.com/mitkox/sonic) delivers genuine speed gains for local AI models and agents through its innovative WebSocket architecture — but it ships without a UI. Sonic UI fixes that.
+Modern AI tools often come with heavy UI bloat or hidden token costs. Sonic UI is designed for developers who want the **bare necessities of a coding environment (Explorer + Terminal)** paired with a superfast, stateful chat interface.
+
+By leveraging Sonic’s innovative WebSocket architecture, you get a genuine speed boost over traditional REST-based interfaces — without the overhead.
 
 You get **all the speed benefits** of the original gateway, plus:
 
 | Feature | What it means |
 |:---|:---|
-| 🖥️ **Built-in chat UI** | Open `http://localhost:9000` — no setup, no dependencies |
-| 📊 **Live performance metrics** | TTFT, tokens/sec, total duration — updated in real-time as tokens stream |
-| 🔁 **Stateful threads** | Conversation history lives server-side; follow-ups don't re-send the full context |
-| ⬛ **Mid-stream cancel** | Stop generation instantly with one click |
-| 🔌 **OpenAI REST proxy** | Works with **Cline**, **Continue**, and any OpenAI-compatible tool via `/v1/chat/completions` |
-| 🏠 **100% local** | Nothing leaves your machine — no API keys, no telemetry |
+| ⌨️ **VS Code Essentials** | Integrated File Explorer and Terminal for a streamlined dev workflow |
+| 🚀 **Superfast Chat** | Persistent WebSocket connection means zero reconnection latency |
+| 📊 **Live Metrics** | TTFT, tokens/sec, and total duration updated in real-time |
+| 🔁 **Stateful Threads** | History lives server-side; follow-ups only send the *new* message, slashing processing time |
+| 🔌 **No Token Costs** | 100% local inference via Ollama, llama.cpp, or vLLM |
+| ⬛ **Mid-stream Cancel** | Stop generation instantly with one click |
+| 🏠 **Zero Bloat** | A focused, high-performance interface that stays out of your way |
+| 🔌 **OpenAI REST Proxy** | Use it as a backend for Cline, Continue, and other tools via `/v1/chat/completions` |
 
 ### Where the speed comes from
 
@@ -45,6 +49,24 @@ WebSocket (what Sonic does):  One persistent connection → send only the new me
 ```
 
 On subsequent messages in a thread, Sonic uses `previous_response_id` to continue from the existing context — the backend only processes the new input, not the entire conversation again. This is where the **~50% speed improvement** lives.
+
+---
+
+## The Sonic Philosophy
+
+Sonic UI isn't just another chat interface; it's a **Tactical Execution Workspace**. While tools like Cline or Aider provide deep project integration, Sonic focuses on three unique pillars:
+
+### 1. The "Sonic" Factor (Speed as a Feature)
+IDE extensions often feel heavy because they are tethered to complex extension hosts and cloud APIs. Sonic is uniquely optimized for **Local WebSockets + vLLM/Ollama**. 
+- **The Concept**: Use Sonic for the "quick strikes"—the tasks that take 10 seconds of clicking in VS Code but can be executed in 200ms here.
+
+### 2. Standalone Portability
+Cline requires VS Code; Sonic requires only a terminal. It consists of a single Python entry point and a modern HTML file.
+- **The Concept**: It's the **"Universal Admin Panel"** for your servers. Drop it into a remote GPU box and instantly have a high-speed, tool-enabled workspace without setting up complex SSH tunnels or syncing local IDE state.
+
+### 3. The "Speculative Playground"
+Many agents are "intrusive"—they manage state, create commits, and modify files automatically in ways that can be hard to track.
+- **The Concept**: Sonic is a **"Speculative Playground."** Because it is so fast and lightweight, it's perfect for "hallucinating" multiple solutions to a problem simultaneously (using vLLM batching), letting you evaluate results in a safe, ephemeral environment before bringing them into your production codebase.
 
 ---
 
@@ -197,7 +219,13 @@ In your tool's settings:
 ### 💬 Chat Interface
 Type a message and watch tokens stream in real time over WebSocket. The connection stays open between messages — no reconnection overhead.
 
-### 📊 Live Metrics Bar
+### � Integrated File Explorer
+Navigate your local project files directly from the sidebar. Just like VS Code, it lets you keep your codebase in view while you chat.
+
+### ⌨️ Built-in Terminal
+Run shell commands, manage files, or check logs without leaving the interface. Integrated seamlessly for an all-in-one developer experience.
+
+### �📊 Live Metrics Bar
 Every response displays real-time performance data:
 - **TTFT** — Time to first token (lower is better)
 - **Speed** — Tokens per second during generation

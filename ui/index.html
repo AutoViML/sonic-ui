@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sonic — WebSocket AI Gateway</title>
+  <title>Sonic UI: Superfast Local Model Chat UI</title>
   <meta name="description"
-    content="Sonic WebSocket Gateway UI for local AI with live streaming and performance metrics">
+    content="Sonic UI: Superfast Local Model Chat UI for local AI with live streaming and performance metrics">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
@@ -210,15 +210,15 @@
 
     .terminal-prompt {
       color: var(--accent-cyan);
-      margin-right: 8px;
+      font-weight: 700;
+      font-family: var(--font-mono);
     }
 
     .terminal-input-wrapper {
-      padding: 8px 12px;
-      background: #000;
+      padding: 16px 16px 20px;
+      background: var(--bg-secondary);
       border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
+      flex-shrink: 0;
     }
 
     .terminal-input {
@@ -229,6 +229,7 @@
       color: #fff;
       font-family: var(--font-mono);
       font-size: 12px;
+      padding: 11px 0;
     }
 
     /* ── Header ── */
@@ -927,8 +928,8 @@
         <div class="logo">
           <div class="logo-icon">⚡</div>
           <div>
-            <div class="logo-text">Sonic</div>
-            <div class="logo-sub">WebSocket Gateway</div>
+            <div class="logo-text">Sonic UI</div>
+            <div class="logo-sub">Superfast Local Model Chat UI</div>
           </div>
         </div>
         <div class="connection-badge disconnected" id="connectionBadge">
@@ -1008,7 +1009,7 @@
         <div class="chat-container" id="chatContainer">
           <div class="welcome-screen" id="welcomeScreen">
             <div class="welcome-icon">⚡</div>
-            <div class="welcome-title">Sonic WebSocket Gateway</div>
+            <div class="welcome-title">Sonic UI: Superfast Local Model Chat UI</div>
             <div class="welcome-sub">
               Experience your local AI at full speed. Persistent WebSocket connection, stateful threads, and instant
               streaming — no HTTP overhead.
@@ -1050,8 +1051,18 @@
           <div class="terminal-line" style="color:var(--text-muted)">Type help for more info</div>
         </div>
         <div class="terminal-input-wrapper">
-          <span class="terminal-prompt">$</span>
-          <input type="text" class="terminal-input" id="terminalInput" placeholder="Run command…">
+          <div class="input-row">
+            <div class="input-wrapper"
+              style="display: flex; align-items: center; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 12px; min-height: 44px;">
+              <span class="terminal-prompt">$</span>
+              <input type="text" class="terminal-input" id="terminalInput" placeholder="Run command…"
+                style="margin-left: 8px;">
+            </div>
+          </div>
+          <div class="input-hint">
+            <span>Press <kbd>Enter</kbd> to run</span>
+            <span>CLI v0.2.0</span>
+          </div>
         </div>
       </aside>
     </div>

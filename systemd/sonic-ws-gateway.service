@@ -1,5 +1,5 @@
 [Unit]
-Description=Sonic Sonic WebSocket Gateway
+Description=Sonic UI: Superfast Local Model Chat UI
 After=network.target
 
 [Service]
