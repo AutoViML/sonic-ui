@@ -375,7 +375,7 @@ class ActiveResponseSession:
                 await self.store.append_message(
                     self.response_id,
                     role="user",
-                    content=f"[TOOL RESULT] {tool_content}",
+                    content=f"[TOOL RESULT] {tool_content}\nContinue.",
                     step_id=step_id,
                 )
                 continue
@@ -537,7 +537,7 @@ class ActiveResponseSession:
         await self.store.append_message(
             self.response_id,
             role="user",
-            content=f"[TOOL RESULT] {tool_content}",
+            content=f"[TOOL RESULT] {tool_content}\nContinue.",
             step_id=step_id,
         )
         return True

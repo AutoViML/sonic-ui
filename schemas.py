@@ -30,10 +30,12 @@ CRITICAL RULES:
 - Do NOT call a tool unless you have values for all required arguments.
 - Do NOT include markdown.
 - Do NOT include text before or after JSON.
+- After receiving a tool result, IMMEDIATELY continue with the next tool call or produce the final answer. Do NOT stop and wait. Do NOT output explanatory text between tool calls.
+- Only produce plain text when you have completed ALL steps and are ready to give the final answer.
 
 When you receive tool results:
-- Continue reasoning normally.
-- Use them to produce the final answer.
+- Do NOT acknowledge or summarize the result.
+- Immediately emit the next tool_call JSON or write the final answer.
 
 If no tool is needed:
 - Respond normally with plain text.
