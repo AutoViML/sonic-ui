@@ -178,6 +178,16 @@ def parse_tool_call_json(text: str) -> ParsedToolCall | None:
     if not stripped:
         return None
 
+    # Strip markdown code fences if the model wrapped the JSON (e.g. ```json ... ```)
+    if stripped.startswith("```"):
+        lines = stripped.split("\n")
+        # Drop the opening fence line (```json or ```)
+        lines = lines[1:]
+        # Drop the closing fence line if present
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        stripped = "\n".join(lines).strip()
+
     try:
         value = json.loads(stripped)
     except json.JSONDecodeError:
