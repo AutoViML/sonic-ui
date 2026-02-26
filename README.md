@@ -2,9 +2,9 @@
 
 # ⚡ Syncra: Superfast Local Model Chat UI
 
-**A beautiful WebSocket chat interface for [Syncra](https://github.com/mitkox/syncra) — the gateway that makes your local AI feel instant.** Built on the original Syncra codebase created by Mitko Vasilev (mitkox).
+**A beautiful WebSocket chat interface for Local Models using a blazing fast gateway that makes your local AI feel instant.** Built on the original [Sonic](https://github.com/mitkox/sonic) codebase created by Mitko Vasilev (mitkox).
 
-Syncra delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** using web sockets (see below for an explanation) featuring an integrated file explorer and terminal without the burden of a bloated UI  like VS Code or massive token costs like Claude Code. You get a thin UI layer and a backend that can be used by other tools like Cline or Continue. Everything stays 100% local.
+Syncra delivers a premium, real-time Chat experience for **Ollama**, **llama.cpp**, and **vLLM** models using web sockets (see below for an explanation) featuring an integrated file explorer and terminal without the burden of a bloated UI  like VS Code or massive token costs like Claude Code. You get a thin UI layer and a backend that can be used by other tools like Cline or Continue. Everything stays 100% local.
 
 ### What are Web Sockets?
 
