@@ -373,7 +373,7 @@ async def scenario_concurrency(url: str, model: str, clients: int) -> ScenarioRe
                     "type": "response.create",
                     "response": {
                         "model": model,
-                        "input": f"Reply with one short sentence about Sonic. request={index}",
+                        "input": f"Reply with one short sentence about Syncra. request={index}",
                     },
                 },
                 timeout_seconds=120,
@@ -461,7 +461,7 @@ async def run_showcase(url: str, model: str, concurrent_clients: int) -> list[Sc
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run a full Sonic value showcase")
+    parser = argparse.ArgumentParser(description="Run a full Syncra value showcase")
     parser.add_argument("--url", default="ws://localhost:9000/v1/responses")
     parser.add_argument("--model", default="mitko")
     parser.add_argument("--concurrent-clients", type=int, default=6)
@@ -482,7 +482,7 @@ def main() -> None:
     passed = sum(1 for result in results if result.ok)
     total = len(results)
     elapsed_ms = int((time.perf_counter() - started) * 1000)
-    print("\n=== Sonic Showcase Scorecard ===")
+    print("\n=== Syncra Showcase Scorecard ===")
     print(f"Passed: {passed}/{total}")
     print(f"Total runtime: {elapsed_ms} ms")
     if passed != total:

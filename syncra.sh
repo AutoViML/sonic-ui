@@ -40,7 +40,7 @@ else
 fi
 
 echo "------------------------------------------------"
-echo "⚡ Sonic UI: Superfast Local Model Chat UI"
+echo "⚡ Syncra: Superfast Local Model Chat UI"
 echo "------------------------------------------------"
 echo "🤖 Model:   $MODEL"
 echo "🔗 Backend: $VLLM_URL"
@@ -50,5 +50,5 @@ echo "------------------------------------------------"
 echo "Ready for WebSocket connections..."
 echo ""
 
-# 5. Launch Sonic
+# 5. Launch Syncra
 exec python -m uvicorn main:app --host 0.0.0.0 --port $PORT --log-level warning

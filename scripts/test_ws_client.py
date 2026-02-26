@@ -226,7 +226,7 @@ async def _send_agentic_request(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Sonic WS test client")
+    parser = argparse.ArgumentParser(description="Syncra WS test client")
     parser.add_argument(
         "--url",
         default="ws://localhost:9000/v1/responses",

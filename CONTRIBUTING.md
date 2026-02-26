@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to Sonic.
+Thanks for contributing to Syncra.
 
 ## Development Setup
 

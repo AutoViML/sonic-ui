@@ -1,11 +1,11 @@
 [Unit]
-Description=Sonic UI: Superfast Local Model Chat UI
+Description=Syncra: Superfast Local Model Chat UI
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/sonic
-EnvironmentFile=/etc/sonic-ws-gateway.env
+WorkingDirectory=/opt/syncra
+EnvironmentFile=/etc/syncra-ws-gateway.env
 ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 9000
 Restart=on-failure
 RestartSec=2

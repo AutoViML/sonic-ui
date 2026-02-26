@@ -12,26 +12,26 @@ fi
 
 source venv/bin/activate
 
-SONIC_RUN_TESTS="${SONIC_RUN_TESTS:-1}"
-SONIC_RUN_LIVE="${SONIC_RUN_LIVE:-1}"
-SONIC_RUN_DEMO_TRACES="${SONIC_RUN_DEMO_TRACES:-1}"
-SONIC_PYTEST_ARGS="${SONIC_PYTEST_ARGS:--q}"
+SYNCRA_RUN_TESTS="${SYNCRA_RUN_TESTS:-1}"
+SYNCRA_RUN_LIVE="${SYNCRA_RUN_LIVE:-1}"
+SYNCRA_RUN_DEMO_TRACES="${SYNCRA_RUN_DEMO_TRACES:-1}"
+SYNCRA_PYTEST_ARGS="${SYNCRA_PYTEST_ARGS:--q}"
 
-if [[ "$SONIC_RUN_TESTS" == "1" ]]; then
+if [[ "$SYNCRA_RUN_TESTS" == "1" ]]; then
   echo "[1/2] Running full automated test suite..."
   # Runs all tests in ./tests so showcase reflects total quality, not only demos.
-  pytest ${SONIC_PYTEST_ARGS}
+  pytest ${SYNCRA_PYTEST_ARGS}
 fi
 
-if [[ "$SONIC_RUN_LIVE" == "1" ]]; then
-  echo "[2/3] Running live Sonic showcase scorecard..."
-  python scripts/showcase_sonic.py \
-    --url "${SONIC_WS_URL:-ws://localhost:9000/v1/responses}" \
-    --model "${SONIC_MODEL:-mitko}" \
-    --concurrent-clients "${SONIC_CONCURRENCY:-8}"
+if [[ "$SYNCRA_RUN_LIVE" == "1" ]]; then
+  echo "[2/3] Running live Syncra showcase scorecard..."
+  python scripts/showcase_syncra.py \
+    --url "${SYNCRA_WS_URL:-ws://localhost:9000/v1/responses}" \
+    --model "${SYNCRA_MODEL:-mitko}" \
+    --concurrent-clients "${SYNCRA_CONCURRENCY:-8}"
 fi
 
-if [[ "$SONIC_RUN_DEMO_TRACES" == "1" ]]; then
+if [[ "$SYNCRA_RUN_DEMO_TRACES" == "1" ]]; then
   echo "[3/3] Running trace demos (agentic + structured)..."
   echo
   echo "=== Agentic Tool Calling Trace ==="

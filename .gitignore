@@ -19,9 +19,9 @@ venv/
 *.db
 *.db-shm
 *.db-wal
-sonic_state.db
-sonic_state.db-shm
-sonic_state.db-wal
+syncra_state.db
+syncra_state.db-shm
+syncra_state.db-wal
 
 # IDE/editor
 .vscode/

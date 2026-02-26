@@ -1,12 +1,12 @@
 <div align="center">
 
-# ⚡ Sonic UI: Superfast Local Model Chat UI
+# ⚡ Syncra: Superfast Local Model Chat UI
 
-**A beautiful WebSocket chat interface for [Sonic](https://github.com/mitkox/sonic) — the gateway that makes your local AI feel instant.** Built on the original Sonic codebase created by Mitko Vasilev (mitkox).
+**A beautiful WebSocket chat interface for [Syncra](https://github.com/mitkox/syncra) — the gateway that makes your local AI feel instant.** Built on the original Syncra codebase created by Mitko Vasilev (mitkox).
 
-Sonic UI delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
+Syncra delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
 
-![Sonic UI — WebSocket chat with live performance metrics](docs/sonic-ui-screenshot.png)
+![Syncra — WebSocket chat with live performance metrics](docs/syncra-screenshot.png)
 
 <br>
 
@@ -20,11 +20,11 @@ Sonic UI delivers a premium, real-time experience for **Ollama**, **llama.cpp**,
 
 ---
 
-## Why Sonic UI?
+## Why Syncra?
 
-Modern AI tools often come with heavy UI bloat or hidden token costs. Sonic UI is designed for developers who want the **bare necessities of a coding environment (Explorer + Terminal)** paired with a superfast, stateful chat interface.
+Modern AI tools often come with heavy UI bloat or hidden token costs. Syncra is designed for developers who want the **bare necessities of a coding environment (Explorer + Terminal)** paired with a superfast, stateful chat interface.
 
-By leveraging Sonic’s innovative WebSocket architecture, you get a genuine speed boost over traditional REST-based interfaces — without the overhead.
+By leveraging Syncra’s innovative WebSocket architecture, you get a genuine speed boost over traditional REST-based interfaces — without the overhead.
 
 You get **all the speed benefits** of the original gateway, plus:
 
@@ -41,32 +41,32 @@ You get **all the speed benefits** of the original gateway, plus:
 
 ### Where the speed comes from
 
-Sonic's WebSocket mode eliminates the overhead of traditional REST:
+Syncra's WebSocket mode eliminates the overhead of traditional REST:
 
 ```
 REST (what Cline does):    New HTTP connection → send ALL messages → wait → close
-WebSocket (what Sonic does):  One persistent connection → send only the new message → instant stream
+WebSocket (what Syncra does):  One persistent connection → send only the new message → instant stream
 ```
 
-On subsequent messages in a thread, Sonic uses `previous_response_id` to continue from the existing context — the backend only processes the new input, not the entire conversation again. This is where the **~50% speed improvement** lives.
+On subsequent messages in a thread, Syncra uses `previous_response_id` to continue from the existing context — the backend only processes the new input, not the entire conversation again. This is where the **~50% speed improvement** lives.
 
 ---
 
-## The Sonic Philosophy
+## The Syncra Philosophy
 
-Sonic UI isn't just another chat interface; it's a **Tactical Execution Workspace**. While tools like Cline or Aider provide deep project integration, Sonic focuses on three unique pillars:
+Syncra isn't just another chat interface; it's a **Tactical Execution Workspace**. While tools like Cline or Aider provide deep project integration, Syncra focuses on three unique pillars:
 
-### 1. The "Sonic" Factor (Speed as a Feature)
-IDE extensions often feel heavy because they are tethered to complex extension hosts and cloud APIs. Sonic is uniquely optimized for **Local WebSockets + vLLM/Ollama**. 
-- **The Concept**: Use Sonic for the "quick strikes"—the tasks that take 10 seconds of clicking in VS Code but can be executed in 200ms here.
+### 1. The "Syncra" Factor (Speed as a Feature)
+IDE extensions often feel heavy because they are tethered to complex extension hosts and cloud APIs. Syncra is uniquely optimized for **Local WebSockets + vLLM/Ollama**. 
+- **The Concept**: Use Syncra for the "quick strikes"—the tasks that take 10 seconds of clicking in VS Code but can be executed in 200ms here.
 
 ### 2. Standalone Portability
-Cline requires VS Code; Sonic requires only a terminal. It consists of a single Python entry point and a modern HTML file.
+Cline requires VS Code; Syncra requires only a terminal. It consists of a single Python entry point and a modern HTML file.
 - **The Concept**: It's the **"Universal Admin Panel"** for your servers. Drop it into a remote GPU box and instantly have a high-speed, tool-enabled workspace without setting up complex SSH tunnels or syncing local IDE state.
 
 ### 3. The "Speculative Playground"
 Many agents are "intrusive"—they manage state, create commits, and modify files automatically in ways that can be hard to track.
-- **The Concept**: Sonic is a **"Speculative Playground."** Because it is so fast and lightweight, it's perfect for "hallucinating" multiple solutions to a problem simultaneously (using vLLM batching), letting you evaluate results in a safe, ephemeral environment before bringing them into your production codebase.
+- **The Concept**: Syncra is a **"Speculative Playground."** Because it is so fast and lightweight, it's perfect for "hallucinating" multiple solutions to a problem simultaneously (using vLLM batching), letting you evaluate results in a safe, ephemeral environment before bringing them into your production codebase.
 
 ---
 
@@ -75,14 +75,14 @@ Many agents are "intrusive"—they manage state, create commits, and modify file
 ### 1. Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/sonic-ui.git
-cd sonic-ui
+git clone https://github.com/YOUR_USERNAME/syncra.git
+cd syncra
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Start your backend + Sonic UI
+### 2. Start your backend + Syncra
 
 Choose your local AI backend below, then open **http://localhost:9000** in your browser.
 
@@ -98,7 +98,7 @@ Choose your local AI backend below, then open **http://localhost:9000** in your 
 llama-server -m ./your-model.gguf --host 0.0.0.0 --port 8080
 ```
 
-**Start Sonic UI** pointing at llama.cpp:
+**Start Syncra** pointing at llama.cpp:
 
 ```bash
 source venv/bin/activate
@@ -119,7 +119,7 @@ python -m uvicorn main:app --host 0.0.0.0 --port 9000
 # Terminal 1: llama.cpp
 llama-server -m qwen3-next-Q4_K_M.gguf --host 0.0.0.0 --port 8080 --ctx-size 8192
 
-# Terminal 2: Sonic UI
+# Terminal 2: Syncra
 VLLM_URL=http://localhost:8080 \
 MODEL_NAME=qwen3next \
 ALLOWED_MODELS=qwen3next \
@@ -141,7 +141,7 @@ ollama serve
 ollama pull llama3.1    # or any model you prefer
 ```
 
-**Start Sonic UI** pointing at Ollama:
+**Start Syncra** pointing at Ollama:
 
 ```bash
 source venv/bin/activate
@@ -171,7 +171,7 @@ Switch between models by changing the model name in the top-right input field of
 
 ## 🚀 Using with vLLM
 
-[vLLM](https://github.com/vllm-project/vllm) is a high-performance inference engine. This is the backend Sonic was originally built for.
+[vLLM](https://github.com/vllm-project/vllm) is a high-performance inference engine. This is the backend Syncra was originally built for.
 
 **Start vLLM:**
 
@@ -181,7 +181,7 @@ python -m vllm.entrypoints.openai.api_server \
   --host 0.0.0.0 --port 8000
 ```
 
-**Start Sonic UI** pointing at vLLM:
+**Start Syncra** pointing at vLLM:
 
 ```bash
 source venv/bin/activate
@@ -193,13 +193,13 @@ python -m uvicorn main:app --host 0.0.0.0 --port 9000
 
 **Open** → [http://localhost:9000](http://localhost:9000)
 
-> **Note:** vLLM supports concurrent request batching. Use `showcase_sonic.py --concurrent-clients 8` to benchmark throughput.
+> **Note:** vLLM supports concurrent request batching. Use `showcase_syncra.py --concurrent-clients 8` to benchmark throughput.
 
 ---
 
 ## 🔌 Using with Cline, Continue, or any OpenAI-compatible tool
 
-Sonic UI also exposes a standard **OpenAI REST API** at `/v1/chat/completions`, so tools like [Cline](https://github.com/cline/cline) and [Continue](https://continue.dev) can connect to it.
+Syncra also exposes a standard **OpenAI REST API** at `/v1/chat/completions`, so tools like [Cline](https://github.com/cline/cline) and [Continue](https://continue.dev) can connect to it.
 
 In your tool's settings:
 
@@ -237,7 +237,7 @@ Every response displays real-time performance data:
 Each follow-up message uses `previous_response_id` to continue the conversation server-side. The backend only processes the new message, not the full history. Watch TTFT drop on follow-ups as the context is already warm.
 
 ### ⬛ Cancel Button
-Click the red **■** button during generation to cancel mid-stream. Sonic sends `response.cancel` and the model stops immediately.
+Click the red **■** button during generation to cancel mid-stream. Syncra sends `response.cancel` and the model stops immediately.
 
 ### ✦ New Thread
 Click the **✦** button to start a fresh conversation. The WebSocket connection stays open — no reconnection needed.
@@ -254,7 +254,7 @@ All configuration is via environment variables:
 | `MODEL_NAME` | `mitko` | Default model name |
 | `ALLOWED_MODELS` | `MODEL_NAME` | Comma-separated list of allowed models |
 | `PORT` | `9000` | Gateway port |
-| `STATE_DB_PATH` | `./sonic_state.db` | SQLite state database path |
+| `STATE_DB_PATH` | `./syncra_state.db` | SQLite state database path |
 | `MAX_STEPS` | `8` | Maximum agent loop steps |
 | `MAX_TOOL_CALLS` | `16` | Maximum tool calls per response |
 | `DEFAULT_TEMPERATURE` | `0.2` | Default sampling temperature |
@@ -273,7 +273,7 @@ All configuration is via environment variables:
 ## Project Layout
 
 ```
-sonic-ui/
+syncra/
 ├── main.py              # FastAPI + WebSocket + REST proxy + UI serving
 ├── agent_loop.py         # Multi-step agent execution loop
 ├── vllm_client.py        # Backend SSE streaming client (works with any OpenAI-compatible API)
@@ -290,7 +290,7 @@ sonic-ui/
 │   ├── test_ws_client.py         # CLI streaming test client
 │   ├── demo_tool_client.py       # Tool-loop demo
 │   ├── demo_structured_output.py # Structured output demo
-│   ├── showcase_sonic.py         # Full benchmark + value demo
+│   ├── showcase_syncra.py         # Full benchmark + value demo
 │   └── run_showcase.sh           # All-in-one test + demo runner
 ├── tests/                # Test suite
 ├── docs/                 # Screenshots and documentation assets
@@ -336,7 +336,7 @@ python scripts/test_ws_client.py --model qwen3next
 python scripts/test_ws_client.py --agentic --first "Calculate 12*7 using tool calc" --model qwen3next
 
 # Full benchmark showcase
-python scripts/showcase_sonic.py --url ws://localhost:9000/v1/responses --model qwen3next --concurrent-clients 8
+python scripts/showcase_syncra.py --url ws://localhost:9000/v1/responses --model qwen3next --concurrent-clients 8
 
 # All-in-one test + demo
 scripts/run_showcase.sh
@@ -355,9 +355,9 @@ curl http://localhost:9000/healthz
 
 ## Credits
 
-Built on top of [mitkox/sonic](https://github.com/mitkox/sonic) — the WebSocket Responses gateway by [@mitkox](https://github.com/mitkox).
+Built on top of [mitkox/syncra](https://github.com/mitkox/syncra) — the WebSocket Responses gateway by [@mitkox](https://github.com/mitkox).
 
-Sonic UI adds the browser interface, OpenAI REST proxy, and multi-backend documentation.
+Syncra adds the browser interface, OpenAI REST proxy, and multi-backend documentation.
 
 ## License
 

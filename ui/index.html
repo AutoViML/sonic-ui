@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sonic UI: Superfast Local Model Chat UI</title>
+  <title>Syncra: Superfast Local Model Chat UI</title>
   <meta name="description"
-    content="Sonic UI: Superfast Local Model Chat UI for local AI with live streaming and performance metrics">
+    content="Syncra: Superfast Local Model Chat UI for local AI with live streaming and performance metrics">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
@@ -21,26 +21,25 @@
     }
 
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-tertiary: #1a1a28;
-      --bg-card: rgba(22, 22, 35, 0.8);
-      --bg-input: #0e0e18;
-      --bg-input: #0e0e18;
-      --border: rgba(255, 255, 255, 0.25);
-      --border-light: rgba(255, 255, 255, 0.3);
-      --border-active: rgba(0, 210, 255, 0.4);
-      --text-primary: #e8e8f0;
-      --text-secondary: #8888a0;
-      --text-muted: #555570;
-      --accent-cyan: #00d2ff;
-      --accent-blue: #3b82f6;
-      --accent-purple: #a855f7;
-      --accent-green: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-red: #ef4444;
-      --gradient-sonic: linear-gradient(135deg, #00d2ff 0%, #3b82f6 50%, #a855f7 100%);
-      --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(0, 210, 255, 0.08) 0%, transparent 60%);
+      --bg-primary: #050510;
+      --bg-secondary: #0a0a1a;
+      --bg-tertiary: #101026;
+      --bg-card: rgba(20, 20, 40, 0.8);
+      --bg-input: #080816;
+      --border: rgba(255, 255, 255, 0.15);
+      --border-light: rgba(255, 255, 255, 0.25);
+      --border-active: rgba(0, 255, 255, 0.8);
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0c0;
+      --text-muted: #606080;
+      --accent-cyan: #00ffff;
+      --accent-blue: #2a8bff;
+      --accent-purple: #c855ff;
+      --accent-green: #00ffaa;
+      --accent-amber: #ffbb00;
+      --accent-red: #ff3366;
+      --gradient-syncra: linear-gradient(135deg, #00ffff 0%, #2a8bff 50%, #c855ff 100%);
+      --gradient-glow: radial-gradient(ellipse at 50% -20%, rgba(0, 255, 255, 0.25) 0%, transparent 70%);
       --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
       --radius-sm: 8px;
       --radius-md: 12px;
@@ -257,23 +256,23 @@
     }
 
     .logo-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--gradient-sonic);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      color: #000;
-      box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+      background: transparent;
+      animation: logoPulse 4s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); transform: scale(1); }
+      50% { box-shadow: 0 0 40px rgba(200, 85, 255, 0.6); transform: scale(1.05); }
     }
 
     .logo-text {
       font-size: 18px;
       font-weight: 700;
-      background: var(--gradient-sonic);
+      background: var(--gradient-syncra);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -355,18 +354,26 @@
     }
 
     .btn-icon {
-      width: 34px;
-      height: 34px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      background: var(--bg-tertiary);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: linear-gradient(145deg, #18182b, #121222);
+      box-shadow: 4px 4px 10px #0a0a14, -4px -4px 10px #242442, inset 1px 1px 2px rgba(255,255,255,0.1);
       color: var(--text-secondary);
       cursor: pointer;
-      transition: all 0.2s;
-      font-size: 14px;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+    .btn-icon:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px var(--accent-cyan), inset 2px 2px 5px rgba(255,255,255,0.2);
+      transform: translateY(-2px);
     }
 
     .btn-icon:hover {
@@ -379,10 +386,11 @@
     .metrics-bar {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 24px;
+      gap: 12px;
+      padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: rgba(10, 10, 15, 0.6);
+      background: rgba(5, 5, 10, 0.8);
+      backdrop-filter: blur(10px);
       flex-shrink: 0;
       overflow-x: auto;
     }
@@ -390,15 +398,32 @@
     .metric {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 6px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 30px;
+      background: linear-gradient(145deg, rgba(20,20,40,0.9), rgba(10,10,25,0.9));
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      box-shadow: inset 2px 2px 4px rgba(255,255,255,0.1), inset -2px -2px 4px rgba(0,0,0,0.5), 0 4px 10px rgba(0,255,255,0.1);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       white-space: nowrap;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::before {
+      content: ''; position: absolute; top:0; left:-100%; width:50%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: skewX(-20deg); animation: lightWave 3s infinite;
+    }
+    @keyframes lightWave {
+      0% { left: -100%; }
+      50%, 100% { left: 200%; }
+    }
+    .metric:hover {
+      box-shadow: inset 2px 2px 4px rgba(255,255,255,0.2), inset -2px -2px 4px rgba(0,0,0,0.5), 0 6px 15px rgba(0,255,255,0.3);
+      transform: translateY(-2px);
+      border-color: rgba(0, 255, 255, 0.5);
     }
 
     .metric-label {
@@ -484,19 +509,7 @@
       }
     }
 
-    .welcome-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
-      background: var(--gradient-sonic);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: 700;
-      color: #000;
-      box-shadow: 0 0 50px rgba(0, 210, 255, 0.2);
-    }
+
 
     .welcome-title {
       font-size: 24px;
@@ -701,19 +714,24 @@
 
     .input-textarea {
       width: 100%;
-      min-height: 44px;
+      min-height: 50px;
       max-height: 180px;
-      padding: 11px 16px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      background: rgba(10, 10, 25, 0.8);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      border-radius: 25px;
       color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.5;
       resize: none;
       outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s;
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -1px -1px 3px rgba(255,255,255,0.05);
+    }
+    .input-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), 0 0 15px rgba(0, 255, 255, 0.2);
     }
 
     .input-textarea:focus {
@@ -726,21 +744,28 @@
     }
 
     .btn-send {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      background: var(--gradient-sonic);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--gradient-syncra);
       border: none;
       color: #000;
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 900;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
-      box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3), inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.6);
       flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-send::after {
+      content: ''; position: absolute; top:0; left:-100%; width:50%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: skewX(-20deg); animation: lightWave 2s infinite;
     }
 
     .btn-send:hover {
@@ -756,19 +781,24 @@
     }
 
     .btn-cancel {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: var(--accent-red);
-      font-size: 18px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff3366, #990033);
+      border: none;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px rgba(255, 51, 102, 0.3), inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.4);
       flex-shrink: 0;
+    }
+    .btn-cancel:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 25px rgba(255, 51, 102, 0.5), inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.4);
     }
 
     .btn-cancel:hover {
@@ -1015,8 +1045,8 @@
       white-space: nowrap;
     }
 
-    .speed-bar-fill.sonic {
-      background: var(--gradient-sonic);
+    .speed-bar-fill.syncra {
+      background: var(--gradient-syncra);
     }
 
     .speed-bar-fill.direct {
@@ -1033,9 +1063,9 @@
     <div class="header">
       <div class="header-left">
         <div class="logo">
-          <div class="logo-icon">⚡</div>
+          <img class="logo-icon" src="logo.png" alt="Syncra">
           <div>
-            <div class="logo-text">Sonic UI</div>
+            <div class="logo-text">Syncra</div>
             <div class="logo-sub">Superfast Local Model Chat UI</div>
           </div>
         </div>
@@ -1115,8 +1145,8 @@
         <!-- Chat area -->
         <div class="chat-container" id="chatContainer">
           <div class="welcome-screen" id="welcomeScreen">
-            <div class="welcome-icon">⚡</div>
-            <div class="welcome-title">Sonic UI: Superfast Local Model Chat UI</div>
+            <img class="logo-icon" style="width: 80px; height: 80px;" src="logo.png" alt="Syncra">
+            <div class="welcome-title">Syncra: Superfast Local Model Chat UI</div>
             <div class="welcome-sub">
               Experience your local AI at full speed. Persistent WebSocket connection, stateful threads, and instant
               streaming — no HTTP overhead.
@@ -1154,7 +1184,7 @@
           <span id="terminalPath">~</span>
         </div>
         <div class="terminal-content" id="terminalContent">
-          <div class="terminal-line">Sonic Terminal v0.2.0</div>
+          <div class="terminal-line">Syncra Terminal v0.2.0</div>
           <div class="terminal-line" style="color:var(--text-muted)">Type help for more info</div>
         </div>
         <div class="terminal-input-wrapper">
@@ -1412,7 +1442,7 @@
       // Define tools for the model to use
       const tools = [];
       const m = modelInput.value.toLowerCase();
-      if (m.includes('coder') || m.includes('qwen') || m.includes('falcon') || m.includes('sonic') || m.includes('devstral')) {
+      if (m.includes('coder') || m.includes('qwen') || m.includes('falcon') || m.includes('syncra') || m.includes('devstral')) {
         tools.push({
           type: "function",
           name: "shell_exec",
@@ -1541,7 +1571,7 @@
       div.className = 'message message-assistant';
       div.innerHTML = `
         <div class="message-label">
-          <span>Sonic</span>
+          <span>Syncra</span>
           <span class="model-badge">${escapeHtml(modelInput.value.trim())}</span>
         </div>
         <div class="message-body streaming-cursor"></div>
@@ -1702,7 +1732,7 @@
       welcome.className = 'welcome-screen';
       welcome.id = 'welcomeScreen';
       welcome.innerHTML = `
-        <div class="welcome-icon">⚡</div>
+        <img class="logo-icon" style="width: 80px; height: 80px;" src="logo.png" alt="Syncra">
         <div class="welcome-title">New Thread</div>
         <div class="welcome-sub">Fresh conversation — the WebSocket connection stays open.</div>
       `;

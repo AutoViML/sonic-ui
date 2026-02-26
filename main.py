@@ -22,7 +22,7 @@ from state_store import StateStore
 from tools.registry import ToolRegistry
 from vllm_client import VLLMClient
 
-logger = logging.getLogger("sonic")
+logger = logging.getLogger("syncra")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
@@ -48,7 +48,7 @@ class RateLimiter:
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
-    app = FastAPI(title="Sonic UI: Superfast Local Model Chat UI", version="0.2.0")
+    app = FastAPI(title="Syncra: Superfast Local Model Chat UI", version="0.2.0")
 
     app.state.settings = settings or Settings.from_env()
     app.state.store = None
@@ -93,7 +93,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/")
     async def root_ui() -> FileResponse:
-        """Serve the Sonic WebSocket chat UI."""
+        """Serve the Syncra WebSocket chat UI."""
         ui_path = Path(__file__).parent / "ui" / "index.html"
         return FileResponse(ui_path, media_type="text/html")
 
@@ -110,7 +110,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "id": model_id,
                     "object": "model",
                     "created": int(time.time()),
-                    "owned_by": "sonic",
+                    "owned_by": "syncra",
                 }
             )
         return JSONResponse({"object": "list", "data": models})

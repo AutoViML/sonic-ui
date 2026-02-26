@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 
-from scripts.showcase_sonic import _send_and_collect
+from scripts.showcase_syncra import _send_and_collect
 
 
 class FakeWebSocket:

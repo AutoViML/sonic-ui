@@ -48,7 +48,7 @@ class Settings:
     state_path: Optional[str] = None
 
     # Phase 2 state and loop controls.
-    state_db_path: str = "./sonic_state.db"
+    state_db_path: str = "./syncra_state.db"
     max_steps: int = 25
     max_tool_calls: int = 50
     tool_wait_timeout_seconds: int = 120
@@ -90,7 +90,7 @@ class Settings:
             max_records=_parse_int(os.getenv("MAX_RECORDS"), 10_000),
             max_record_age_seconds=max_age,
             state_path=fallback_state_path,
-            state_db_path=state_db_path or fallback_state_path or "./sonic_state.db",
+            state_db_path=state_db_path or fallback_state_path or "./syncra_state.db",
             max_steps=_parse_int(os.getenv("MAX_STEPS"), 25),
             max_tool_calls=_parse_int(os.getenv("MAX_TOOL_CALLS"), 50),
             tool_wait_timeout_seconds=_parse_int(
