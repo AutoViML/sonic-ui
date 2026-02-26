@@ -4,7 +4,11 @@
 
 **A beautiful WebSocket chat interface for [Syncra](https://github.com/mitkox/syncra) — the gateway that makes your local AI feel instant.** Built on the original Syncra codebase created by Mitko Vasilev (mitkox).
 
-Syncra delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** — featuring an integrated file explorer and terminal without the burden of a bloated UI or massive token costs. Everything stays 100% local.
+Syncra delivers a premium, real-time experience for **Ollama**, **llama.cpp**, and **vLLM** using web sockets (see below for an explanation) featuring an integrated file explorer and terminal without the burden of a bloated UI  like VS Code or massive token costs like Claude Code. You get a thin UI layer and a backend that can be used by other tools like Cline or Continue. Everything stays 100% local.
+
+### What are Web Sockets?
+
+<b>Web Sockets</b> are a communication protocol that enables bidirectional, real-time communication between clients and servers. Unlike HTTP, which requires repeated requests, Web Sockets maintain an open connection allowing both parties to send data at any time. They are commonly used in applications requiring live updates, such as chat rooms, live notifications, or real-time gaming. The protocol starts with an HTTP upgrade request, then transitions to a WebSocket connection using the same TCP connection. Once established, the connection persists until explicitly closed, enabling low-latency data transfer. This makes Web Sockets ideal for dynamic, interactive chat applications.
 
 ![Syncra — WebSocket chat with live performance metrics](docs/syncra-screenshot.png)
 
@@ -75,7 +79,7 @@ Many agents are "intrusive"—they manage state, create commits, and modify file
 ### 1. Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/syncra.git
+git clone https://github.com/AutoViML/syncra.git
 cd syncra
 python3 -m venv venv
 source venv/bin/activate

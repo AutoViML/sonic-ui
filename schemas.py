@@ -187,41 +187,68 @@ class ParsedToolCall:
     arguments: dict[str, Any]
 
 
+import re
+
 def parse_tool_call_json(text: str) -> ParsedToolCall | None:
-    stripped = text.strip()
-    if not stripped:
+    if not text.strip():
         return None
 
-    # Strip markdown code fences if the model wrapped the JSON (e.g. ```json ... ```)
+    # 1. Try direct parsing (fastest)
+    stripped = text.strip()
     if stripped.startswith("```"):
         lines = stripped.split("\n")
-        # Drop the opening fence line (```json or ```)
         lines = lines[1:]
-        # Drop the closing fence line if present
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
         stripped = "\n".join(lines).strip()
-
+    
     try:
-        value = json.loads(stripped)
+        data = json.loads(stripped)
+        if isinstance(data, dict) and "tool_call" in data:
+            return _extract_from_dict(data)
     except json.JSONDecodeError:
-        return None
+        pass
 
-    if not isinstance(value, dict):
-        return None
+    # 2. Try to find JSON block with regex (robust)
+    # This matches the start of a {...} block that contains "tool_call"
+    # and then we use the brace-balancing logic to find the full object.
+    pattern = re.compile(r'\{[ \n\r\t]*"tool_call"', re.DOTALL)
+    matches = list(pattern.finditer(text))
+    
+    for match in matches:
+        start_idx = match.start()
+        brace_count = 0
+        end_idx = -1
+        for i in range(start_idx, len(text)):
+            if text[i] == '{':
+                brace_count += 1
+            elif text[i] == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    end_idx = i + 1
+                    break
+        
+        if end_idx != -1:
+            snippet = text[start_idx:end_idx]
+            try:
+                data = json.loads(snippet)
+                if isinstance(data, dict) and "tool_call" in data:
+                    return _extract_from_dict(data)
+            except json.JSONDecodeError:
+                continue
+                
+    return None
 
-    tool_call = value.get("tool_call")
+def _extract_from_dict(data: dict[str, Any]) -> ParsedToolCall | None:
+    tool_call = data.get("tool_call")
     if not isinstance(tool_call, dict):
         return None
-
     name = tool_call.get("name")
     arguments = tool_call.get("arguments", {})
-
     if not isinstance(name, str) or not name.strip():
         return None
     if not isinstance(arguments, dict):
         return None
-
     return ParsedToolCall(name=name.strip(), arguments=arguments)
 
 

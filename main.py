@@ -97,6 +97,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ui_path = Path(__file__).parent / "ui" / "index.html"
         return FileResponse(ui_path, media_type="text/html")
 
+    @app.get("/logo.jpg")
+    async def get_logo() -> FileResponse:
+        """Serve the Syncra logo."""
+        logo_path = Path(__file__).parent / "ui" / "logo.jpg"
+        return FileResponse(logo_path, media_type="image/jpeg")
+
     # ── OpenAI-compatible REST API (for Cline, Continue, etc.) ──────────
 
     @app.get("/v1/models")
