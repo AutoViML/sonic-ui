@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
 
 # ⚡ Syncra: Superfast Local Model Chat UI
 
@@ -34,14 +34,16 @@ You get **all the speed benefits** of the original gateway, plus:
 
 | Feature | What it means |
 |:---|:---|
+| 🎨 **Cyberpunk Aesthetic** | A premium, glassmorphic UI with electric cyan accents and smooth animations |
+| 🔧 **Interactive Tool Cards** | One-click **"RUN IN TERMINAL"** buttons for shell commands; no copy-pasting |
 | ⌨️ **VS Code Essentials** | Integrated File Explorer and Terminal for a streamlined dev workflow |
 | 🚀 **Superfast Chat** | Persistent WebSocket connection means zero reconnection latency |
 | 📊 **Live Metrics** | TTFT, tokens/sec, and total duration updated in real-time |
-| 🔁 **Stateful Threads** | History lives server-side; follow-ups only send the *new* message, slashing processing time |
+| 🔁 **Stateful Threads** | History lives server-side; follow-ups only send the *new* message |
 | 🔌 **No Token Costs** | 100% local inference via Ollama, llama.cpp, or vLLM |
 | ⬛ **Mid-stream Cancel** | Stop generation instantly with one click |
-| 🏠 **Zero Bloat** | A focused, high-performance interface that stays out of your way |
-| 🔌 **OpenAI REST Proxy** | Use it as a backend for Cline, Continue, and other tools via `/v1/chat/completions` |
+| 🔃 **Auto-Sync Explorer** | File sidebar automatically refreshes after AI tool executions |
+| 🔌 **OpenAI REST Proxy** | Use it as a backend for Cline, Continue, and other tools |
 
 ### Where the speed comes from
 
@@ -86,9 +88,22 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Start your backend + Syncra
+### 2. Start Syncra
 
-Choose your local AI backend below, then open **http://localhost:9000** in your browser.
+The easiest way to start is using the provided **Syncra Script**. It handles process cleanup, environment variables, and virtual environment activation automatically.
+
+```bash
+# Launch with default model
+./syncra.sh
+
+# Or specify a different model
+./syncra.sh deepseek-r1
+```
+
+**Pro Tip:** Add the following alias to your `~/.zshrc` (or `~/.bashrc`) to launch from anywhere:
+`alias syncra='~/syncra.sh'`
+
+Now open **http://localhost:9000** in your browser.
 
 ---
 
@@ -220,16 +235,16 @@ In your tool's settings:
 
 ## UI Features
 
-### 💬 Chat Interface
-Type a message and watch tokens stream in real time over WebSocket. The connection stays open between messages — no reconnection overhead.
+### 💬 Chat Interface & Interactive Tool Cards
+Type a message and watch tokens stream in real time. If the AI suggests a bash command, Syncra renders a **Premium Tool Card** with a glowing cyan "RUN IN TERMINAL" button. One click executes it in your local terminal — no manual copy-pasting required.
 
-### � Integrated File Explorer
-Navigate your local project files directly from the sidebar. Just like VS Code, it lets you keep your codebase in view while you chat.
+### 📁 Integrated File Explorer & Auto-Refresh
+Navigate your local project files directly from the sidebar. The explorer **automatically refreshes** whenever an AI tool (like `shell_exec`) finishes running, ensuring you always see the latest file changes instantly.
 
 ### ⌨️ Built-in Terminal
-Run shell commands, manage files, or check logs without leaving the interface. Integrated seamlessly for an all-in-one developer experience.
+A fully-featured terminal panel on the right allows you to manually run commands or watch output side-by-side with your AI chat. Perfect for debugging local scripts.
 
-### �📊 Live Metrics Bar
+### 📊 Live Metrics Bar
 Every response displays real-time performance data:
 - **TTFT** — Time to first token (lower is better)
 - **Speed** — Tokens per second during generation
@@ -359,9 +374,9 @@ curl http://localhost:9000/healthz
 
 ## Credits
 
-Built on top of [mitkox/syncra](https://github.com/mitkox/syncra) — the WebSocket Responses gateway by [@mitkox](https://github.com/mitkox).
+Built on top of the original [mitkox/sonic](https://github.com/mitkox/sonic) codebase by [@mitkox](https://github.com/mitkox).
 
-Syncra adds the browser interface, OpenAI REST proxy, and multi-backend documentation.
+Syncra adds the interactive browser interface, Cyberpunk design system, Interactive Tool Cards, OpenAI REST proxy, and multi-backend support.
 
 ## License
 
